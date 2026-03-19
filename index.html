@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal de Avaliações Profissionais GTFLEX</title>
+
+<style>
+/* Reutilizando o estilo degradê azul da GTFLEX */
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #3b5998, #1e3c72); /* Ajustado para um tom mais próximo da sua imagem */
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 500px;
+    width: 90%;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.logo-empresa {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+h1 {
+    color: #1e3c72;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+/* NOVO: Estilo da caixa de instruções */
+.instrucoes {
+    background-color: #f8f9fa;
+    border-left: 4px solid #f1c40f;
+    padding: 15px;
+    margin-bottom: 25px;
+    text-align: left;
+    font-size: 14px;
+    color: #444;
+    border-radius: 4px;
+}
+
+.instrucoes p {
+    margin: 5px 0;
+}
+
+label {
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"], select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 25px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.btn-iniciar {
+    width: auto;
+    padding: 12px 30px;
+    border: none;
+    background: #f1c40f;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-iniciar:hover {
+    background: #f39c12;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <img src="img/logo.png" alt="Logo GTFLEX Transportadora" class="logo-empresa">
+
+    <h1>Avaliação Profissional de Candidatos</h1>
+
+    <div class="instrucoes">
+        <p><strong>Instruções do Exame:</strong></p>
+        <p>• O teste é composto por perguntas de múltipla escolha.</p>
+        <p>• Leia com atenção e selecione apenas uma resposta por questão.</p>
+        <p>• Você tem 1 minuto por pergunta, caso o tempo esgote a pergunta será perdida.</p>
+        <p>• Caso você saia da pagina o teste é reiniciado.</p>
+        <p>• Ao finalizar, o resultado será enviado automaticamente para nossa equipe. Boa sorte!</p>
+    </div>
+
+    <label for="nome_candidato">Nome</label>
+    <input type="text" id="nome_candidato" placeholder="Digite seu nome completo">
+
+    <label for="vaga_selecionada">Selecione a vaga</label>
+    <select id="vaga_selecionada">
+        <option value="" disabled selected>Selecione</option>
+        
+        <option value="auxiliar_administrativo">Auxiliar Administrativo</option>
+        <option value="assistente_administrativo">Assistente Administrativo</option>
+        <option value="supervisor_administrativo">Supervisor Administrativo</option>
+        
+        <option value="auxiliar_financeiro">Auxiliar Financeiro</option>
+        <option value="assistente_financeiro">Assistente Financeiro</option>
+        <option value="supervisor_financeiro">Supervisor Financeiro</option>
+        
+        <option value="atendente_sac">Atendente SAC</option>
+        <option value="analista_sac">Analista SAC</option>
+        <option value="supervisor_sac">Supervisor SAC</option>
+        
+        <option value="assistente_comercial">Assistente Comercial</option>
+        <option value="vendedor">Vendedor</option>
+        <option value="supervisor_comercial">Supervisor Comercial</option>
+        
+        <option value="auxiliar_operacional">Auxiliar Operacional</option>
+        <option value="conferente">Conferente</option>
+        <option value="supervisor_operacional">Supervisor Operacional</option>
+    </select>
+
+    <button class="btn-iniciar" id="btnIniciar" onclick="iniciarAvaliacao()">Iniciar avaliação</button>
+</div>
+
+<script>
+    function iniciarAvaliacao() {
+        const nome = document.getElementById('nome_candidato').value.trim();
+        const vaga = document.getElementById('vaga_selecionada').value;
+
+        // Verifica se o nome foi preenchido
+        if (nome === "") {
+            alert("Por favor, digite seu nome completo.");
+            return;
+        }
+
+        // Verifica se a vaga foi selecionada
+        if (vaga === "") {
+            alert("Por favor, selecione uma vaga.");
+            return;
+        }
+
+        // Agora ele aceita qualquer vaga e envia os dados (nome e vaga) para o novo arquivo universal
+        window.location.href = "avaliacao.html?vaga=" + encodeURIComponent(vaga) + "&nome=" + encodeURIComponent(nome);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="Akoebrain" content="width=device-width, initial-scale=1.0">
+<title>Avaliação Profissional | GTFLEX</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #3b5998, #1e3c72);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.container {
+    max-width: 600px;
+    width: 90%;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+h1 {
+    color: #1e3c72;
+    font-size: 22px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+.candidato-info {
+    text-align: center;
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+.question-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+.question-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+}
+.option-label {
+    display: block;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+.option-label:hover { background: #f1f1f1; }
+.option-label input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+.progress { text-align: center; font-size: 14px; color: #555; margin-bottom: 15px; }
+/* Estilo do Cronômetro */
+.timer-container {
+    background: #ffebee;
+    border: 2px solid #f44336;
+    color: #c62828;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+button {
+    width: 100%; padding: 15px; border: none; background: #f1c40f; color: #333;
+    font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background 0.3s;
+}
+button:hover { background: #f39c12; }
+.result { margin-top: 20px; padding: 20px; background: #e8f5e9; border-radius: 8px; text-align: center; display: none; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="titulo-vaga">Avaliação</h1>
+    <div class="candidato-info" id="nome-display">Candidato: Carregando...</div>
+
+    <div id="area-avaliacao">
+        <div class="timer-container">
+            ⏱️ Tempo Restante: <span id="cronometro">45</span>s
+        </div>
+
+        <div class="progress" id="progresso">Carregando...</div>
+        
+        <div class="question-container" id="box-pergunta">
+            </div>
+
+        <button id="btn-acao" onclick="proximoPasso()">Confirmar e Próxima</button>
+    </div>
+
+    <div class="result" id="resultado"></div>
+</div>
+
+<script>
+// Captura os dados da URL (vindo da página index.html)
+const urlParams = new URLSearchParams(window.location.search);
+let nomeCandidato = urlParams.get('nome') || "Candidato não identificado";
+let idVaga = urlParams.get('vaga') || "";
+
+document.getElementById('nome-display').innerText = "Candidato: " + nomeCandidato;
+
+// Nomes de exibição das vagas
+const nomesVagas = {
+    "auxiliar_administrativo": "Auxiliar Administrativo",
+    "assistente_administrativo": "Assistente Administrativo",
+    "supervisor_administrativo": "Supervisor Administrativo",
+    "auxiliar_financeiro": "Auxiliar Financeiro",
+    "assistente_financeiro": "Assistente Financeiro",
+    "supervisor_financeiro": "Supervisor Financeiro",
+    "atendente_sac": "Atendente SAC",
+    "analista_sac": "Analista SAC",
+    "supervisor_sac": "Supervisor SAC",
+    "assistente_comercial": "Assistente Comercial",
+    "vendedor": "Vendedor Comercial",
+    "supervisor_comercial": "Supervisor Comercial",
+    "auxiliar_operacional": "Auxiliar Operacional",
+    "conferente": "Conferente",
+    "supervisor_operacional": "Supervisor Operacional"
+};
+
+// BANCO DE PERGUNTAS POR VAGA
+// Estrutura: ["Pergunta", ["Opção 1", "Opção 2", "Opção 3", "Opção 4"], ÍndiceDaRespostaCerta]
+const bancoDePerguntas = {
+    // --- SETOR ADMINISTRATIVO ---
+    "auxiliar_administrativo": [
+        ["O que é considerado um arquivo inativo?", ["Documentos sem uso frequente, mas que devem ser guardados", "Documentos que devem ir para o lixo", "Contas a pagar do mês atual", "Anotações pessoais da equipe"], 0],
+        ["Qual a melhor forma de organizar documentos físicos?", ["Por ordem alfabética, data ou assunto, dependendo do tipo", "Deixando tudo em uma única gaveta", "Apenas por tamanho do papel", "Não é necessário organizar arquivos físicos"], 0],
+        ["Ao redigir um e-mail profissional para um fornecedor, você deve:", ["Ser claro, objetivo e usar linguagem formal", "Usar gírias para parecer amigável", "Escrever tudo em letras maiúsculas", "Não colocar assunto no e-mail"], 0],
+        ["Qual a função de um controle de protocolo de documentos?", ["Registrar a entrada, saída e o responsável por receber o documento", "Calcular impostos da empresa", "Anotar os recados de telefone", "Bloquear a entrada de visitantes"], 0],
+        ["Como você deve agir ao receber uma ligação para o seu gestor que está em reunião?", ["Anotar o recado, o número de quem ligou e repassar assim que possível", "Interromper a reunião imediatamente", "Desligar o telefone na cara do cliente", "Dizer que ele não quer atender"], 0],
+        ["O que significa 'digitalizar' um documento?", ["Transformar um documento de papel em um arquivo de computador (ex: PDF)", "Jogar o documento no lixo", "Assinar o documento com caneta azul", "Enviar o papel pelos Correios"], 0],
+        ["Em uma planilha de Excel, o que representa a junção de uma linha e uma coluna?", ["Uma célula", "Um gráfico", "Um e-mail", "Um pendrive"], 0],
+        ["Qual o comportamento adequado ao usar a internet da empresa?", ["Usar apenas para fins profissionais e pesquisas relacionadas ao trabalho", "Baixar filmes e músicas", "Passar o dia em redes sociais pessoais", "Compartilhar a senha do Wi-Fi com pessoas na rua"], 0],
+        ["O que é um memorando?", ["Uma comunicação interna, escrita e formal entre os setores da empresa", "Um tipo de caminhão de carga", "Uma conta de luz", "O extrato bancário do funcionário"], 0],
+        ["Como lidar com informações confidenciais da empresa (ex: salário de colegas)?", ["Manter total sigilo e não comentar com ninguém", "Contar apenas para o melhor amigo na empresa", "Postar nas redes sociais", "Falar em voz alta no refeitório"], 0],
+        ["Para que serve a agenda eletrônica (Google Calendar ou Outlook) no trabalho?", ["Organizar compromissos, reuniões e lembrar de prazos importantes", "Jogar no computador", "Bloquear o acesso à internet", "Fazer planilhas de pagamento"], 0],
+        ["Ao notar que o papel da impressora está acabando, qual a postura proativa?", ["Avisar o responsável pelas compras ou solicitar mais material antes que acabe", "Esperar acabar para ninguém mais imprimir", "Esconder as últimas folhas para uso próprio", "Desligar a impressora"], 0],
+        ["Qual o objetivo de um formulário de requisição de materiais?", ["Formalizar e controlar o que cada setor está consumindo", "Punir quem usa muita caneta", "Aumentar o imposto da empresa", "Servir como papel de rascunho"], 0],
+        ["O que é uma assinatura digital?", ["Um método seguro que valida a autoria e integridade de um documento eletrônico", "O nome escrito com o mouse no Paint", "Uma foto da assinatura de caneta", "O nome do funcionário no crachá"], 0],
+        ["Ao atender um motorista ou cliente na recepção, você deve:", ["Cumprimentar com educação, ouvir a solicitação e direcionar ao setor correto", "Fingir que não viu a pessoa", "Mandar a pessoa descobrir sozinha onde ir", "Falar gírias e tratar de forma desrespeitosa"], 0],
+        ["Qual software é o mais indicado para criar ofícios e contratos de texto?", ["Microsoft Word (ou Google Docs)", "Microsoft Excel", "Adobe Photoshop", "Navegador de Internet"], 0],
+        ["O que é o arquivamento em nuvem (Google Drive, OneDrive)?", ["Salvar arquivos na internet, permitindo acesso de qualquer computador", "Guardar documentos físicos no sótão da empresa", "Imprimir papéis em dias de chuva", "Um vírus de computador"], 0],
+        ["Se você recebe duas tarefas urgentes de gestores diferentes, o que faz?", ["Comunica os dois gestores sobre a situação para definirem juntos a prioridade", "Faz a tarefa do gestor que gritou mais alto", "Vai embora para casa", "Não faz nenhuma das duas"], 0],
+        ["Para que serve o campo 'Cco' (Cópia Oculta) em um e-mail?", ["Enviar o e-mail para alguém sem que os outros destinatários vejam", "Esconder o e-mail no computador", "Corrigir os erros de português", "Enviar o e-mail mais rápido"], 0],
+        ["A pontualidade e assiduidade no trabalho demonstram:", ["Comprometimento, responsabilidade e respeito com a equipe", "Que o funcionário não tem vida social", "Que o relógio está adiantado", "Apenas medo de levar bronca"], 0]
+    ],
+    "assistente_administrativo": [
+        ["O que é um relatório gerencial?", ["Um documento que resume dados de forma organizada para ajudar na tomada de decisão", "Um recibo de pagamento a um motorista", "O espelho de ponto dos funcionários", "Uma nota fiscal de serviço cancelada"], 0],
+        ["No controle de manutenção de frota, o que é manutenção preventiva?", ["Revisão programada para evitar quebras e acidentes com os caminhões", "Conserto feito apenas após o caminhão quebrar na estrada", "Lavagem da cabine do veículo", "Troca de motorista na rota"], 0],
+        ["Uma das principais funções do assistente administrativo é:", ["Dar suporte operacional aos setores, emitir documentos e alimentar planilhas de controle", "Dirigir os caminhões da empresa", "Fazer vendas externas de frete", "Apenas atender o telefone da portaria"], 0],
+        ["O que é um fluxograma de processos?", ["Uma representação visual do passo a passo de uma atividade ou processo", "Um documento financeiro de cobrança", "O mapa das rodovias que a transportadora usa", "Um tipo de software de rastreamento"], 0],
+        ["Para que serve uma nota de débito?", ["Para cobrar valores de terceiros que não exigem emissão de nota fiscal", "Para dar desconto ao cliente", "Para pagar multas de trânsito", "Para demitir um funcionário"], 0],
+        ["No controle de estoque de material de escritório, o que é o 'ponto de pedido'?", ["A quantidade mínima de um item que avisa que é hora de comprar mais", "O local físico onde os lápis são guardados", "O site onde se compra material", "O momento em que o papel acaba totalmente"], 0],
+        ["O que é um adiantamento de viagem na transportadora?", ["Um valor fornecido ao motorista para cobrir despesas na estrada (pedágio, alimentação)", "O salário pago adiantado", "O dinheiro da venda do caminhão", "A devolução de uma mercadoria"], 0],
+        ["Como proceder ao conferir uma nota fiscal recebida de fornecedor com erro no valor?", ["Solicitar a correção ou o cancelamento da nota antes de processar o pagamento", "Pagar mesmo assim e reclamar depois", "Esconder a nota na gaveta", "Descontar do salário do conferente"], 0],
+        ["O que é a metodologia '5S' no ambiente de trabalho?", ["Um programa de qualidade focado em organização, limpeza e disciplina", "Um sistema de rastreamento de carga", "Os cinco diretores da empresa", "Um tipo de caminhão trucado"], 0],
+        ["Ao organizar uma reunião com a diretoria, qual a primeira providência?", ["Verificar a disponibilidade de agenda de todos e reservar a sala", "Comprar salgados e refrigerantes", "Fazer a ata da reunião", "Imprimir folhas em branco"], 0],
+        ["O que significa SLA (Acordo de Nível de Serviço) de atendimento interno?", ["O prazo combinado para que um departamento atenda a solicitação de outro", "O valor cobrado pelo suporte de TI", "A marca dos computadores", "O tempo de almoço do funcionário"], 0],
+        ["Em faturamento, o que significa CFOP?", ["Código Fiscal de Operações e Prestações, usado em notas fiscais", "Centro de Faturamento Operacional Padrão", "Comprovante Financeiro de Ordem de Pagamento", "Controle de Frota de Operações Privadas"], 0],
+        ["Qual a importância de fazer o 'backup' de planilhas e arquivos importantes?", ["Garantir que os dados não sejam perdidos em caso de problema no computador", "Para deixar o computador mais rápido", "Para gastar a memória do servidor", "Para poder apagar os originais"], 0],
+        ["O que significa 'terceirizar' um serviço na transportadora (ex: limpeza ou segurança)?", ["Contratar outra empresa especializada para realizar aquela atividade", "Obrigar os motoristas a fazerem o serviço", "Dividir o serviço em três partes", "Parar de realizar a atividade"], 0],
+        ["Para que serve o fechamento e controle de ponto dos funcionários?", ["Para calcular corretamente o salário, horas extras e descontos", "Apenas para saber quem chega atrasado para dar bronca", "Para definir quem vai ser promovido", "Não serve para nada na prática"], 0],
+        ["Ao elaborar uma planilha de custos operacionais, qual fórmula básica do Excel soma valores?", ["=SOMA()", "=PROCV()", "=MÉDIA()", "=SE()"], 0],
+        ["O que é o pró-labore?", ["A remuneração dos sócios pelo trabalho na empresa", "O salário do estagiário", "Um imposto sobre o lucro", "O vale-transporte"], 0],
+        ["Qual a diferença entre comunicação interna e externa?", ["Interna é com os colaboradores; externa é com clientes, mídia e fornecedores", "Interna é por e-mail; externa é por telefone", "Interna é verdadeira; externa é falsa", "Não existe diferença na empresa"], 0],
+        ["O que é uma certidão negativa de débitos (CND)?", ["Um documento que comprova que a empresa não tem dívidas com um órgão do governo", "Uma nota fiscal cancelada", "A recusa de um orçamento", "O extrato bancário zerado"], 0],
+        ["Se um veículo da frota for multado, qual o procedimento administrativo básico?", ["Identificar o motorista na data, fazer o recurso se cabível ou registrar o desconto", "Pagar imediatamente sem olhar de quem foi", "Ignorar a multa para ver se ela some", "Vender o caminhão no mesmo dia"], 0]
+    ],
+    "supervisor_administrativo": [
+        ["Ao identificar um conflito frequente entre dois funcionários do setor, a melhor postura é:", ["Chamar ambos para uma conversa neutra, entender as causas e alinhar as regras de convivência", "Ignorar e esperar que eles resolvam sozinhos com o tempo", "Demitir imediatamente quem falou mais alto", "Punir toda a equipe suspendendo benefícios"], 0],
+        ["O que são KPIs (Indicadores-chave de Desempenho)?", ["Métricas mensuráveis usadas para avaliar se a equipe está alcançando as metas", "As regras do departamento de trânsito", "Os impostos federais pagos pela transportadora", "Tipos de caminhões e empilhadeiras"], 0],
+        ["Na visão de gestão, delegar tarefas significa:", ["Transferir autoridade e responsabilidade para a execução, mas continuar acompanhando os resultados", "Dar ordens e nunca mais verificar se o serviço foi feito", "Fazer o trabalho pelo funcionário porque ele é devagar", "Lavar as mãos em caso de erro da equipe"], 0],
+        ["O que é um feedback construtivo?", ["Uma avaliação que aponta pontos de melhoria e acertos, com foco no desenvolvimento do profissional", "Uma bronca dada na frente de todo mundo", "Um elogio falso para o funcionário trabalhar mais", "Um formulário do departamento pessoal"], 0],
+        ["Como um supervisor deve lidar com o absenteísmo (excesso de faltas) da equipe?", ["Identificar a causa raiz conversando com os colaboradores e buscar soluções de engajamento", "Apenas descontar do salário sem perguntar nada", "Faltar também para mostrar quem manda", "Demitir todos os que faltaram 1 dia"], 0],
+        ["O que é o Ciclo PDCA (Plan, Do, Check, Act)?", ["Uma ferramenta de gestão de qualidade para melhoria contínua de processos", "Um sistema de freio dos caminhões modernos", "Um tipo de imposto logístico", "O processo de contratação do RH"], 0],
+        ["Na gestão administrativa dos custos de frota, o que deve ser analisado mensalmente?", ["A média de consumo de combustível (km/l), gastos com manutenção e pedágios", "A cor do uniforme dos motoristas", "Quantos cafés os mecânicos tomaram", "Se o rádio do caminhão está funcionando"], 0],
+        ["Qual a principal diferença entre um líder e um chefe tradicional?", ["O líder inspira, orienta e desenvolve a equipe; o chefe apenas foca em mandar e controlar", "O líder ganha menos que o chefe", "O chefe é sempre mais educado", "Não há nenhuma diferença"], 0],
+        ["Ao implantar um novo sistema de gestão (ERP) na empresa, a atitude do supervisor deve ser:", ["Engajar a equipe, oferecer treinamento e acompanhar a transição para reduzir a resistência", "Instalar o sistema e mandar todos se virarem sozinhos", "Reclamar do sistema novo junto com os funcionários", "Desistir da implantação no primeiro erro"], 0],
+        ["O que é uma Avaliação de Desempenho?", ["Um processo estruturado para medir a performance, habilidades e atitudes do colaborador no período", "A conferência de mercadorias no galpão", "A auditoria financeira anual", "O exame admissional do médico"], 0],
+        ["Como otimizar o tempo e garantir a eficiência em reuniões de equipe?", ["Definir uma pauta clara antes, focar nos tópicos e determinar prazos para as ações", "Deixar a reunião sem horário para acabar", "Falar sobre assuntos pessoais na primeira hora", "Não convidar as pessoas essenciais para o tema"], 0],
+        ["O que significa a Gestão por Competências?", ["Avaliar e direcionar colaboradores com base em seus conhecimentos, habilidades e atitudes (CHA)", "Dar cargos apenas pelo tempo de empresa", "Pagar o mesmo salário para todos", "Não exigir qualificação para contratações"], 0],
+        ["Para reduzir custos operacionais com materiais no escritório, o supervisor deve:", ["Mapear os desperdícios, conscientizar a equipe e otimizar os pedidos de compras", "Proibir o uso de papel e caneta de um dia para o outro", "Comprar materiais de péssima qualidade", "Esconder os materiais no próprio armário"], 0],
+        ["O que é Turnover (Rotatividade de Pessoal)?", ["O índice que mede a proporção de funcionários que saem da empresa em relação aos que entram/ficam", "O giro do pneu do caminhão na estrada", "O retorno de mercadorias avariadas", "A troca de turno da equipe da noite para o dia"], 0],
+        ["Como garantir a conformidade com as normas de segurança do trabalho no ambiente administrativo?", ["Garantir ergonomia correta, promover pausas e fiscalizar o uso adequado dos equipamentos", "Isso é problema exclusivo dos motoristas", "Colocar um cartaz na parede e não olhar mais", "Tirar as cadeiras para todos trabalharem em pé"], 0],
+        ["Se um colaborador que sempre teve alto desempenho começa a cometer erros frequentes, qual o primeiro passo?", ["Realizar uma reunião individual para escutar o colaborador e entender se há problemas pessoais ou falta de recursos", "Aplicar uma advertência escrita imediata", "Demitir para dar exemplo aos outros", "Diminuir o salário dele naquele mês"], 0],
+        ["Qual a importância do Clima Organizacional para a transportadora?", ["Um ambiente saudável aumenta a produtividade, a retenção de talentos e o engajamento", "Apenas para a empresa parecer legal nas redes sociais", "Para justificar gastos com festas", "Não tem impacto nos lucros da empresa"], 0],
+        ["O que é o planejamento estratégico de um departamento?", ["A definição de objetivos de longo prazo, metas e os planos de ação para atingi-los", "A escala de férias do fim do ano", "A organização das mesas do escritório", "A rota do caminhão para o dia seguinte"], 0],
+        ["Como lidar com um erro grave cometido por um subordinado que gerou prejuízo financeiro?", ["Tratar com profissionalismo, entender onde o processo falhou, corrigir a causa e aplicar a medida disciplinar cabível", "Xingar o funcionário na frente dos clientes", "Fingir que nada aconteceu para não gerar atrito", "Cobrar do funcionário o triplo do valor"], 0],
+        ["O que é a matriz SWOT (FOFA), usada no planejamento gerencial?", ["Uma ferramenta de análise das Forças, Fraquezas, Oportunidades e Ameaças", "O controle de Faturamento, Operação, Frota e Atendimento", "Um sistema de rastreamento via satélite", "Um tipo de imposto sobre transporte de cargas"], 0]
+    ],
+
+    // --- SETOR FINANCEIRO ---
+    "auxiliar_financeiro": [
+        ["O que é conciliação bancária?", ["Conferência entre o extrato do banco e o sistema financeiro para garantir que os saldos batam", "O pagamento de um boleto no caixa eletrônico", "A emissão de uma nota fiscal de frete", "A contratação de um novo funcionário"], 0],
+        ["Contas a pagar são:", ["Obrigações e despesas que a transportadora deve quitar (fornecedores, impostos)", "Valores que os clientes devem pagar pelo transporte", "Lucros do mês que sobraram na conta", "Investimentos na compra de um novo caminhão"], 0],
+        ["O que é inadimplência?", ["Quando um cliente deixa de pagar o boleto do frete na data de vencimento", "Quando a empresa tem muito lucro no final do ano", "Um tipo de imposto federal sobre o transporte", "O saldo positivo na conta corrente"], 0],
+        ["O que é uma Nota Fiscal (NF)?", ["O documento oficial que registra a venda de um produto ou prestação de serviço e recolhe impostos", "Um recibo feito à mão pelo motorista", "A planilha de controle de ponto", "Um orçamento sem validade fiscal"], 0],
+        ["Se um cliente afirma que pagou um boleto, mas o dinheiro não aparece no sistema, o que você deve fazer primeiro?", ["Pedir que ele envie o comprovante de pagamento para analisar e buscar no banco", "Dizer que ele está mentindo e cancelar o frete", "Pagar o boleto do próprio bolso", "Apagar a dívida do sistema sem conferir"], 0],
+        ["O que é o DANFE?", ["Documento Auxiliar da Nota Fiscal Eletrônica (a representação simplificada da NF que viaja com o caminhão)", "O imposto sobre circulação de mercadorias", "O nome do sistema do banco", "O vale-alimentação do funcionário"], 0],
+        ["Para que serve o controle de 'Fundo de Caixa' (ou Caixinha) na empresa?", ["Para pagar pequenas despesas do dia a dia em dinheiro (água, cartório, lanche) sem precisar de transferência bancária", "Para comprar caminhões novos", "Para pagar a folha de pagamento inteira", "Para guardar o dinheiro que sobra no fim do mês"], 0],
+        ["Se uma conta (como luz ou telefone) tem vencimento no domingo, quando ela deve ser paga sem cobrança de juros?", ["Na segunda-feira (próximo dia útil)", "Na sexta-feira anterior, obrigatoriamente", "No próprio domingo, no caixa eletrônico", "No mês seguinte"], 0],
+        ["O que é o PIX e qual sua principal vantagem para a empresa?", ["Transferência instantânea que ocorre em qualquer dia e horário, facilitando o recebimento", "Um tipo de financiamento de veículos demorado", "Um imposto sobre grandes fortunas", "Uma máquina de passar cartão de crédito"], 0],
+        ["O que é um arquivo de 'Remessa' bancária?", ["Um arquivo gerado pelo sistema da empresa e enviado ao banco para registrar boletos que os clientes vão pagar", "Um vírus de computador", "Uma mensagem do WhatsApp para o cliente", "O extrato da conta do motorista"], 0],
+        ["Como deve ser a organização dos comprovantes de pagamento físicos ou digitais?", ["Arquivados sistematicamente (por data, fornecedor ou centro de custo) para facilitar futuras auditorias", "Jogados em uma caixa de papelão sem ordem", "Guardados na bolsa pessoal do funcionário", "Deletados assim que a conta for paga"], 0],
+        ["O que significa DDA (Débito Direto Autorizado)?", ["Um sistema onde os boletos emitidos contra o CNPJ da empresa aparecem eletronicamente na conta do banco", "Um tipo de desconto na compra de pneus", "Uma taxa cobrada pelo sindicato", "A devolução de uma mercadoria avariada"], 0],
+        ["Se o valor de um boleto enviado pelo fornecedor estiver diferente do valor da nota fiscal, qual a postura correta?", ["Pausar o pagamento e questionar o fornecedor ou o setor de compras sobre a divergência", "Pagar o boleto mais caro para evitar problemas", "Ignorar a nota fiscal e alterar no sistema", "Jogar o boleto fora e não avisar ninguém"], 0],
+        ["Qual a diferença básica entre despesa fixa e variável?", ["Fixa ocorre todo mês (aluguel); variável muda conforme a operação (combustível da viagem)", "Fixa é o lucro; variável é o prejuízo", "Fixa é paga em dinheiro; variável em cartão", "Não existe diferença na contabilidade"], 0],
+        ["O que é um cheque pré-datado?", ["Um cheque emitido com uma data futura combinada para o desconto", "Um cheque que já venceu e voltou sem fundo", "Um cheque preenchido a lápis", "Um cheque emitido pelo governo"], 0],
+        ["O que é o extrato bancário?", ["O documento emitido pelo banco que mostra todas as entradas, saídas e o saldo final da conta", "A lista de clientes da transportadora", "O espelho de ponto do mês", "O recibo do pedágio"], 0],
+        ["Qual a finalidade de emitir um Recibo?", ["Comprovar que a empresa pagou ou recebeu determinado valor, devendo ter assinatura e data", "Garantir o seguro do caminhão", "Substituir a nota fiscal para não pagar imposto", "Apenas gastar papel do escritório"], 0],
+        ["Por que é importante conferir os dados bancários (agência, conta e CPF/CNPJ) antes de fazer uma transferência?", ["Para evitar que o dinheiro seja enviado para a pessoa ou empresa errada", "Apenas para demorar mais no trabalho", "Para avisar o banco que a empresa tem dinheiro", "Não é importante, o banco sempre corrige os erros sozinho"], 0],
+        ["O que significa o termo 'Juros e Multa' em um boleto vencido?", ["Um valor extra cobrado como penalidade pelo atraso no pagamento", "Um desconto concedido por pagar depois da data", "Uma taxa do governo sobre lucro", "O prêmio pago ao melhor funcionário"], 0],
+        ["O que é um CNPJ?", ["Cadastro Nacional da Pessoa Jurídica, o documento de identificação da empresa na Receita Federal", "A carteira de motorista do dono da transportadora", "O código da placa do caminhão", "O sindicato dos trabalhadores"] , 0]
+    ],
+    "assistente_financeiro": [
+        ["O que o Fluxo de Caixa demonstra?", ["As entradas (recebimentos) e saídas (pagamentos) de dinheiro da empresa em um determinado período", "Apenas os impostos pagos no ano", "O controle de férias e atestados da equipe", "O peso das cargas transportadas no mês"], 0],
+        ["O que é DRE (Demonstrativo de Resultados do Exercício)?", ["Um relatório contábil que mostra se a empresa teve lucro ou prejuízo, confrontando receitas e despesas", "O documento de entrega assinado pelo cliente", "O diário de bordo do motorista", "A planilha de manutenção da frota"], 0],
+        ["O que é um CT-e na rotina de uma transportadora?", ["Conhecimento de Transporte Eletrônico, o documento fiscal emitido para cobrar o frete da mercadoria", "Um código de trânsito estadual", "O comprovante de transferência bancária", "O controle de tempo de espera do caminhão"], 0],
+        ["O que é o CIOT (Código Identificador da Operação de Transportes)?", ["Um código obrigatório que regulamenta o pagamento do frete a motoristas autônomos ou terceirizados", "O número da conta de luz da empresa", "Um selo de qualidade internacional", "A senha do Wi-Fi da transportadora"], 0],
+        ["O que é Capital de Giro?", ["A reserva de dinheiro necessária para manter a empresa funcionando (pagar contas, diesel, salários) enquanto não recebe dos clientes", "O lucro distribuído aos sócios no fim do ano", "O valor de compra de um caminhão zero", "O limite do cartão de crédito corporativo"], 0],
+        ["Qual a principal diferença entre Faturamento e Lucro?", ["Faturamento é todo o dinheiro que entra das vendas; Lucro é o que sobra após pagar todas as despesas", "São exatamente a mesma coisa", "Faturamento é dinheiro em caixa; lucro é dinheiro no banco", "Lucro é antes dos impostos; faturamento é depois"], 0],
+        ["No processamento de boletos, o que é o arquivo de 'Retorno'?", ["O arquivo enviado pelo banco à empresa, informando quais clientes pagaram os boletos", "O comprovante de devolução de uma mercadoria quebrada", "Um e-mail do cliente reclamando do valor", "O extrato da conta pessoal do sócio"], 0],
+        ["O que significa 'prorrogar o vencimento' de um título a receber?", ["Alterar a data original de cobrança para dar mais prazo ao cliente, geralmente mediante negociação", "Cancelar a venda e pegar a mercadoria de volta", "Protestar o nome do cliente no Serasa", "Diminuir o valor da nota fiscal"], 0],
+        ["Como calcular os juros simples mensais de um boleto em atraso?", ["Aplicar a taxa percentual (ex: 1% ao mês) sobre o valor original da dívida, multiplicando pelos meses de atraso", "Cobrar o dobro do valor automaticamente", "Dividir o valor do boleto por dois", "Não se cobra juros em boletos de empresas"], 0],
+        ["Na emissão de notas fiscais de serviço (NFS-e), o que são as 'Retenções na Fonte' (IRRF, INSS, ISS)?", ["Valores de impostos que o cliente já desconta do pagamento do frete para repassar diretamente ao governo", "Um bônus pago ao motorista", "A taxa de pedágio incluída na rota", "Uma multa cobrada pela prefeitura"], 0],
+        ["Qual a finalidade de um Centro de Custos no sistema financeiro?", ["Separar e agrupar as despesas por setores ou veículos, facilitando a análise de onde o dinheiro está sendo gasto", "Mudar a sede da empresa para o centro da cidade", "Esconder as despesas da contabilidade", "Reduzir o salário dos funcionários da base"], 0],
+        ["O que significa 'Protestar' um boleto em cartório?", ["Registrar formalmente a dívida não paga do cliente, o que suja o CNPJ dele nos órgãos de proteção ao crédito (Serasa)", "Gritar com o cliente no telefone", "Levar o caso para o Ministério do Trabalho", "Perdoar a dívida e cancelar a nota fiscal"], 0],
+        ["Como as tarifas bancárias (taxa de boleto, DOC/TED, manutenção de conta) devem ser tratadas?", ["Devem ser lançadas rigorosamente no sistema financeiro como 'despesas financeiras' para não furar a conciliação", "Devem ser ignoradas, pois os valores são pequenos", "Devem ser cobradas diretamente do salário do caixa", "A contabilidade não precisa saber delas"], 0],
+        ["O que é um 'Adiantamento a Fornecedor'?", ["Um pagamento feito antes do fornecedor entregar a peça ou prestar o serviço, que deve ser compensado depois com a nota fiscal", "Pagar a conta de luz do mês passado", "Comprar fiado no posto de combustível", "Pagar a rescisão de um funcionário demitido"], 0],
+        ["Ao constatar que a empresa pagou o mesmo boleto duas vezes (em duplicidade), o assistente deve:", ["Entrar em contato com o fornecedor imediatamente solicitando a devolução do dinheiro ou o abatimento em um próximo faturamento", "Esconder o erro do chefe e deixar por isso mesmo", "Processar o banco e pedir indenização", "Anotar como 'despesa imprevista' no DRE"], 0],
+        ["O que é a provisão de férias e décimo terceiro?", ["Reservar contábil e financeiramente um valor todo mês para não faltar dinheiro quando for a hora de pagar esses direitos", "Pagar adiantado as férias todo mês", "O tempo que o caminhão fica parado na oficina", "Um bônus dado no final do ano"], 0],
+        ["O que é o MDF-e (Manifesto Eletrônico de Documentos Fiscais) e por que o financeiro/faturamento deve acompanhá-lo?", ["É o documento que une os CT-es da carga; sem o encerramento dele, a empresa pode ser multada e não consegue emitir novos", "É o cardápio do restaurante dos motoristas", "É o manual de peças do caminhão", "É o recibo de lavagem da frota"], 0],
+        ["O que é o processo de 'Contas a Receber'?", ["Monitorar todos os valores que os clientes devem à empresa, fazer a cobrança preventiva e baixar os recebimentos", "Apenas emitir cheques para fornecedores", "Contratar novos seguros para os veículos", "Limpar o escritório no final do dia"], 0],
+        ["Qual a importância da conciliação de cartões de crédito/débito?", ["Verificar se a operadora de cartão realmente repassou à empresa todas as vendas feitas na maquininha, descontando a taxa correta", "Bloquear o cartão do dono da empresa", "Evitar que os motoristas usem o cartão", "Não é necessário, as operadoras nunca erram"], 0],
+        ["Em logística, o que é o cálculo do custo de 'Ad Valorem'?", ["Uma taxa cobrada no frete baseada no valor da nota fiscal da mercadoria, para cobrir os custos de seguro contra roubo", "A taxa de entrega rápida", "O peso medido na balança rodoviária", "Um desconto concedido em cargas leves"] , 0]
+    ],
+    "supervisor_financeiro": [
+        ["Qual o principal objetivo de analisar o Ciclo Operacional e o Ciclo Financeiro (Ciclo de Caixa) da transportadora?", ["Para tentar receber dos clientes antes de precisar pagar os fornecedores, mantendo o capital de giro positivo", "Para saber quantas viagens o caminhão fez no mês", "Para definir a escala de folga dos motoristas", "Para aumentar os impostos pagos ao governo"], 0],
+        ["O que significa o indicador financeiro EBITDA (ou LAJIDA)?", ["Lucros Antes de Juros, Impostos, Depreciação e Amortização, mostrando o potencial de geração de caixa da operação", "A soma de todos os impostos pagos no trimestre", "O valor de revenda da frota antiga", "O índice de quebra de caminhões na estrada"], 0],
+        ["Qual a melhor estratégia gerencial para diminuir a inadimplência na transportadora?", ["Implementar uma análise de crédito rigorosa para clientes novos e uma régua de cobrança automatizada antes e depois do vencimento", "Perdoar todas as dívidas e confiar na sorte", "Parar de atender clientes novos", "Processar todos os clientes sem tentar negociar"], 0],
+        ["O que é o Ponto de Equilíbrio (Break-even point)?", ["O momento em que as receitas igualam os custos e despesas totais; a partir dali, a empresa começa a ter lucro real", "O ponto de parada obrigatória do motorista na rodovia", "O limite de peso do caminhão", "O dia de pagamento dos salários"], 0],
+        ["Na contratação de Seguro de Carga (RCTR-C / RCF-DC), como isso afeta a DRE da empresa?", ["Entra como um Custo ou Despesa Operacional, que deve ser repassado ao cliente no frete para não reduzir a margem de lucro", "Entra como um Recebimento e aumenta o lucro líquido automaticamente", "Não afeta o financeiro, apenas a operação logística", "É deduzido do salário dos motoristas"], 0],
+        ["O que significa 'Liquidez Corrente' na análise de balanço?", ["A capacidade que a empresa tem de pagar suas dívidas de curto prazo usando os recursos que tem em caixa e a receber a curto prazo", "A quantidade de combustível no tanque", "A velocidade com que a empresa entrega as cargas", "A facilidade de demitir funcionários"], 0],
+        ["Como avaliar financeiramente se o financiamento de uma frota nova (via FINAME ou Leasing) é vantajoso?", ["Analisando o Custo Efetivo Total (CET), a taxa de juros real e o impacto das parcelas no fluxo de caixa projetado", "Olhando apenas o valor da prestação mensal isoladamente", "Sempre é vantajoso comprar caminhão novo, não precisa de análise", "Perguntando a opinião do vendedor da concessionária"], 0],
+        ["O que é a 'Margem de Contribuição' de uma rota ou cliente específico?", ["O quanto sobra da receita desse frete após retirar os custos variáveis (diesel, pedágio), ajudando a pagar as despesas fixas", "O valor total da nota fiscal de serviço", "O lucro líquido final da empresa inteira", "O valor pago em comissão ao vendedor comercial"], 0],
+        ["Qual o impacto direto da variação do preço do Diesel no orçamento da transportadora?", ["O diesel é o maior custo variável; aumentos não repassados na tabela de frete reduzem ou zeram a margem de lucro operacional", "Não tem impacto, pois o cliente paga o combustível à parte sempre", "O impacto é sentido apenas pelos postos de gasolina", "Aumenta o lucro da empresa"], 0],
+        ["O que engloba a gestão de 'Compliance' financeiro?", ["Garantir que a empresa cumpra todas as leis, normas fiscais e tenha processos transparentes contra fraudes e corrupção", "Esconder dinheiro da Receita Federal", "Mudar os relatórios financeiros para pagar menos imposto ilegalmente", "Comprar sem nota fiscal para economizar"], 0],
+        ["Para elaborar um Dashboard (Painel de Controle) financeiro eficiente para os donos, em quais KPIs o supervisor deve focar?", ["Saldos de caixa, Posição da Inadimplência, DRE resumido (Lucro Operacional) e Principais Despesas", "Na cor da planilha e na fonte do texto", "Na lista de compras de café e açúcar", "Nos horários que os funcionários foram ao banheiro"], 0],
+        ["O que é uma auditoria financeira interna e para que serve?", ["A revisão detalhada dos processos e números para identificar erros, desperdícios, evitar fraudes e garantir a veracidade do balanço", "Um evento para demitir pessoas", "A fiscalização do sindicato dos motoristas", "A compra de um software novo"], 0],
+        ["Se a empresa mostra Lucro na DRE, mas o dono não vê dinheiro na conta bancária, o que pode estar ocorrendo?", ["Descasamento de prazos (paga antes de receber), alta inadimplência de clientes, estoques parados ou retiradas excessivas dos sócios", "A DRE está obrigatoriamente errada", "O banco está roubando dinheiro da conta", "O dinheiro evapora com o tempo"], 0],
+        ["Qual o papel do supervisor na gestão de relacionamento bancário?", ["Negociar as melhores taxas de aplicações, buscar menores tarifas de emissão de boletos e juros menores para empréstimos ou giro", "Apenas pegar o extrato na agência", "Levar o gerente do banco para almoçar todos os dias", "Ignorar as taxas, pois são padrão em todos os bancos"], 0],
+        ["O que é o Valuation de uma empresa?", ["O processo de avaliar e calcular quanto a empresa vale no mercado (valor financeiro) em caso de venda ou entrada de investidor", "O desconto dado a um cliente fiel", "O cálculo da rescisão de um funcionário antigo", "O valor pago de IPVA da frota inteira"], 0],
+        ["Como o supervisor deve agir diante de uma suspeita de fraude identificada no setor de contas a pagar (ex: boletos frios)?", ["Bloquear os pagamentos suspeitos imediatamente, auditar os comprovantes sigilosamente, reunir evidências e reportar à diretoria", "Demitir todos do setor sem provas", "Ignorar se o valor for pequeno", "Avisar o fraudador para que ele esconda as provas"], 0],
+        ["Na gestão de riscos de uma transportadora, o que é o gerenciamento de passivo trabalhista?", ["provisionar valores e revisar rotinas (como pagamento de horas extras de motoristas) para evitar processos e multas futuras", "Ignorar as leis trabalhistas para economizar a curto prazo", "Processar os funcionários antes que eles processem a empresa", "Pagar os salários com dinheiro em espécie sem recibo"], 0],
+        ["O que é o ROI (Retorno Sobre o Investimento)?", ["Um cálculo que mostra quanto a empresa ganhou (ou perdeu) em relação ao valor investido em um projeto, marketing ou frota nova", "A velocidade com que o caminhão volta da viagem", "O documento de devolução de peça para a oficina", "A taxa cobrada para abrir uma conta no banco"], 0],
+        ["Qual a importância do Planejamento Orçamentário Anual (Budget)?", ["Estabelecer metas de receitas, fixar tetos de despesas e guiar o crescimento estruturado da empresa ao longo dos 12 meses", "Adivinhar os números para agradar a diretoria", "Engessar a empresa para não gastar um real", "Não serve para nada, pois a economia do país sempre muda"], 0],
+        ["Como analisar o impacto das tarifas de pedágio no resultado financeiro da rota?", ["Somando os valores de pedágio aos custos fixos e variáveis, e verificando se a tarifa do Frete Cotação absorve e ainda gera margem positiva", "Pagando os pedágios com o fundo de caixa sem anotar", "Descontando o pedágio do salário do motorista", "O pedágio não impacta porque é o governo que cobra"] , 0]
+    ],
+
+    // --- SETOR SAC (Atendimento) ---
+    "atendente_sac": [
+        ["Um cliente liga irritado porque a mercadoria está atrasada. Qual a atitude correta?", ["Ouvir com empatia, pedir desculpas pelo transtorno, buscar o status no sistema e dar um prazo real", "Dizer que a culpa é do motorista e desligar", "Pedir para ele ligar no dia seguinte porque você está ocupado", "Informar que a transportadora não se responsabiliza por atrasos"], 0],
+        ["O que é o rastreamento de carga?", ["O acompanhamento passo a passo da mercadoria, desde a coleta até a entrega no destino", "O peso total do caminhão na balança", "A nota fiscal de devolução de mercadoria", "O pagamento antecipado do frete"], 0],
+        ["Qual é a regra de ouro no atendimento ao cliente?", ["Sempre manter a calma, ser educado, prestativo e focar na resolução do problema", "Falar mais alto que o cliente para mostrar autoridade", "Nunca admitir que a transportadora errou, mesmo que seja verdade", "Transferir a ligação o mais rápido possível para outro setor"], 0],
+        ["O que significa o termo 'Previsão de Entrega'?", ["Uma data estimada para a chegada da carga, que pode sofrer pequenas alterações por motivos de força maior", "A data exata e imutável em que o motorista vai chegar", "O dia em que a transportadora fará a coleta", "O prazo para o cliente pagar o boleto"], 0],
+        ["Se o sistema de rastreamento estiver fora do ar quando o cliente ligar, o que você faz?", ["Anota os dados do cliente e da nota fiscal, e promete retornar a ligação assim que o sistema voltar", "Manda o cliente tentar de novo na semana que vem", "Inventa que a carga está chegando para acalmá-lo", "Desliga o telefone fingindo que a linha caiu"], 0],
+        ["Qual a postura correta ao falar com o cliente ao telefone?", ["Falar com clareza, usar um tom de voz amigável ('sorriso na voz') e evitar gírias", "Falar rápido para atender mais pessoas", "Usar termos muito técnicos de logística que o cliente não entende", "Atender mastigando ou bebendo algo"], 0],
+        ["O que significa a sigla SAC?", ["Serviço de Atendimento ao Consumidor (ou Cliente)", "Sistema de Armazenamento de Cargas", "Setor de Arrecadação de Contas", "Sindicato dos Auxiliares de Caminhão"], 0],
+        ["Se o motorista informar 'Destinatário Ausente' na primeira tentativa de entrega, o que o SAC deve informar ao cliente?", ["Que a entrega não pôde ser feita e que haverá uma nova tentativa de acordo com as regras da transportadora", "Que a mercadoria foi devolvida para a fábrica imediatamente", "Que ele precisa ir buscar a carga no galpão", "Que a carga foi descartada"], 0],
+        ["Se o cliente pedir o número do celular pessoal do motorista para cobrar a entrega, o que você faz?", ["Explica que por questões de segurança a empresa não repassa contatos pessoais, mas que o SAC fará a ponte com a operação", "Passa o número imediatamente", "Passa um número falso para ele parar de ligar", "Dá o número do dono da transportadora"], 0],
+        ["O que é a 'Escuta Ativa' no atendimento?", ["Prestar atenção real ao que o cliente está dizendo, sem interromper, para entender exatamente a dor dele", "Deixar o telefone no mudo enquanto faz outra coisa", "Ouvir música enquanto o cliente fala", "Interromper o cliente para dar a resposta mais rápido"], 0],
+        ["Ao redigir um e-mail de resposta para um cliente, qual é a etiqueta correta?", ["Iniciar com saudação, usar texto claro, evitar letras maiúsculas (caixa alta) e incluir uma assinatura profissional", "Escrever tudo em letras maiúsculas para destacar", "Enviar apenas um 'ok' sem saudação", "Usar emojis em excesso para parecer legal"], 0],
+        ["Se o cliente relatar que a caixa chegou amassada, mas o produto está intacto, o que fazer?", ["Registrar o relato para melhoria interna e tranquilizar o cliente, já que o produto não sofreu avaria", "Mandar ele devolver tudo", "Dizer que é frescura dele", "Cobrar uma taxa extra pela embalagem nova"], 0],
+        ["Como agir quando um cliente liga apenas para elogiar o serviço de entrega?", ["Agradecer o feedback, registrar o elogio no sistema e compartilhar com a equipe envolvida", "Dizer que ele não fez mais que a obrigação", "Ignorar e desligar", "Pedir uma gorjeta"], 0],
+        ["Se você precisar deixar o cliente aguardando na linha para consultar uma informação, qual a melhor prática?", ["Explicar o motivo da pausa, pedir para ele aguardar um instante e retornar rapidamente agradecendo a espera", "Colocar no mudo sem avisar nada", "Deixar ele esperando por 15 minutos sem dar sinal de vida", "Transferir para a telefonista"], 0],
+        ["Sobre o uso de 'scripts' (textos prontos) no atendimento, é correto afirmar:", ["Devem ser usados como um guia para não esquecer informações, mas a fala deve soar natural e humana", "Devem ser lidos de forma robótica para o cliente perceber que é padrão", "São proibidos na transportadora", "Devem ser usados apenas para xingar o cliente"], 0],
+        ["Como se dirigir a um cliente que você não conhece?", ["Usar 'Senhor' ou 'Senhora' por respeito, a menos que o próprio cliente peça para ser chamado pelo nome", "Chamar de 'Você' logo de cara", "Chamar de 'Querido(a)' ou 'Amigo(a)'", "Evitar usar qualquer pronome de tratamento"], 0],
+        ["No sistema de atendimento, o que é um 'Ticket' ou 'Chamado'?", ["Um registro numérico que documenta a solicitação do cliente, permitindo acompanhar o histórico do caso", "A passagem de ônibus do funcionário", "Um vale-refeição", "A multa por atraso na entrega"], 0],
+        ["O cliente ligou pedindo para cancelar a entrega, mas o caminhão já saiu para a rota. O que fazer?", ["Avisar o setor operacional imediatamente para tentar barrar a entrega, e explicar ao cliente que a carga já está em rota", "Dizer que é impossível e desligar", "Mandar o cliente correr atrás do caminhão", "Anotar no papel e só avisar no dia seguinte"], 0],
+        ["Se você não souber a resposta para a dúvida do cliente, qual é a atitude profissional?", ["Ser honesto, dizer que vai verificar a informação com o setor responsável e dar um retorno em seguida", "Inventar uma resposta qualquer para não parecer que não sabe", "Transferir para o setor financeiro", "Ficar em silêncio até o cliente desligar"], 0],
+        ["Ao precisar transferir a ligação para outro setor (ex: Financeiro), você deve:", ["Explicar ao cliente o motivo da transferência e garantir que o outro setor saiba do que se trata antes de passar a linha", "Transferir de surpresa no meio da frase do cliente", "Dizer ao cliente para ele mesmo ligar de novo e escolher a outra opção", "Desligar e fingir que caiu"] , 0]
+    ],
+    "analista_sac": [
+        ["No caso de avaria (dano) na mercadoria durante o transporte, qual o procedimento padrão do Analista?", ["Registrar a ocorrência no sistema, solicitar fotos ao recebedor e iniciar o processo interno de sinistro/indenização", "Ignorar e esperar que o cliente esqueça de cobrar", "Cobrar o valor do motorista no mesmo dia", "Mandar entregar assim mesmo e não avisar o embarcador"], 0],
+        ["O que significa SLA (Service Level Agreement) no transporte?", ["O Acordo de Nível de Serviço, que define os prazos e a qualidade combinada com o cliente para as entregas e retornos", "O imposto cobrado sobre o frete estadual", "O nome do sistema de rastreamento de satélite", "O limite de peso do eixo do caminhão"], 0],
+        ["Para gerar um relatório de ocorrências eficiente, o analista deve:", ["Categorizar os problemas (atraso, avaria, extravio) para ajudar a diretoria a identificar onde estão as falhas operacionais", "Apenas fazer uma lista com os nomes dos clientes que reclamaram", "Apagar as reclamações resolvidas para o relatório ficar menor", "Omitir dados de atraso para a operação não levar bronca"], 0],
+        ["O que é Logística Reversa?", ["O processo de coleta de uma mercadoria no cliente final para ser devolvida ao embarcador (fábrica/loja)", "A entrega de produtos falsificados", "Dirigir o caminhão de marcha ré na doca", "O cancelamento de uma nota fiscal"], 0],
+        ["Qual a diferença entre Ocorrência e Sinistro de carga?", ["Ocorrência é qualquer desvio do processo (ex: endereço não achado); Sinistro envolve acionamento do seguro por dano, roubo ou perda", "Não existe diferença, são a mesma coisa", "Ocorrência é culpa do cliente; Sinistro é culpa do motorista", "Sinistro é apenas acidente de trânsito"], 0],
+        ["Se um cliente B2B (empresa) cobrar uma multa por atraso na entrega, o analista deve primeiro:", ["Analisar o contrato firmado, verificar o real motivo do atraso e reunir evidências sistêmicas antes de aprovar a cobrança", "Pagar a multa imediatamente para não perder o cliente", "Xingar o cliente por e-mail", "Descontar a multa da comissão do vendedor"], 0],
+        ["O que é uma 'Acareação' na logística?", ["Um processo de investigação onde se confronta as informações do motorista com o recebedor quando há divergência sobre quem recebeu a carga", "Uma técnica de lavagem de caminhões", "O processo de separação de mercadorias no galpão", "A pesagem da carga na rodovia"], 0],
+        ["O que é um CT-e Complementar?", ["Um documento fiscal emitido para corrigir um valor de frete ou imposto que foi cobrado a menor no documento original", "O crachá do ajudante do motorista", "Um bônus dado ao cliente", "A carteira de motorista da categoria E"], 0],
+        ["Como tratar uma ocorrência de 'Carga Parada na Sefaz (Barreira Fiscal)'?", ["Identificar o motivo da retenção, avisar o cliente/embarcador para que ele regularize os impostos da NF e acompanhar a liberação", "Avisar o motorista para fugir da barreira", "Pagar os impostos do cliente usando o dinheiro da transportadora", "Devolver a mercadoria sem falar nada"], 0],
+        ["O que é Análise de Causa Raiz?", ["Uma técnica para descobrir o motivo principal de um erro repetitivo (ex: atrasos frequentes), para resolver o problema e não apenas o sintoma", "Analisar a raiz das árvores que caíram na rodovia", "O cálculo da raiz quadrada do valor do frete", "O processo de contratação de um novo motorista"], 0],
+        ["Como deve ser a comunicação do Analista de SAC com o Setor Operacional (Galpão/Tráfego)?", ["Deve ser ágil, colaborativa e baseada em dados reais do sistema, buscando soluções conjuntas para os problemas", "Deve ser agressiva, sempre culpando a operação por tudo", "Não deve existir comunicação entre eles", "Deve ser feita apenas uma vez por mês"], 0],
+        ["O que é um cliente 'Detrator' (segundo a metodologia NPS)?", ["Um cliente altamente insatisfeito com a experiência, que além de poder cancelar, fala mal da empresa para outras pessoas", "Um cliente que paga os boletos adiantado", "Um cliente que transporta apenas cargas refrigeradas", "Um cliente que não tem contrato fixo"], 0],
+        ["Por que o Canhoto Assinado (Comprovante de Entrega) é tão importante para o SAC e o Financeiro?", ["Porque é o documento legal que prova que o serviço de transporte foi concluído e a mercadoria foi recebida", "Para servir de papel de rascunho", "Para o motorista ter um autógrafo do cliente", "Apenas para aumentar o peso dos arquivos do escritório"], 0],
+        ["O que é FCR (First Call Resolution - Resolução no Primeiro Contato)?", ["Uma métrica de eficiência que mede quantos problemas o SAC conseguiu resolver na primeira ligação do cliente, sem precisar retornar", "A primeira marcha do caminhão", "O primeiro cliente que ligou no dia", "O fechamento do caixa no fim do mês"], 0],
+        ["O que significa fazer o 'Follow-up' de um chamado no SAC?", ["Dar retorno proativo ao cliente sobre o andamento da solução do problema dele, para que ele não precise ligar cobrando", "Encerrar o chamado sem resolver", "Ignorar o cliente após a primeira ligação", "Transferir a culpa para o fornecedor"], 0],
+        ["Ao receber dezenas de e-mails, como o analista deve priorizar os chamados?", ["Avaliar a urgência, o impacto financeiro/operacional, o tempo de SLA acordado e agir nos mais críticos primeiro", "Atender por ordem alfabética", "Responder apenas os clientes mais educados", "Apagar metade para diminuir o trabalho"], 0],
+        ["Como tratar uma 'Dificuldade de Entrega' por área de risco ou difícil acesso?", ["Avisar o cliente sobre a restrição, tentar reagendar com veículo menor, combinar escolta ou autorizar retirada no galpão", "Deixar a mercadoria na rua", "Mandar o motorista entrar correndo", "Cancelar a nota fiscal imediatamente"], 0],
+        ["Ao responder uma reclamação pública (ex: Reclame Aqui ou Google), a redação deve ser:", ["Polida, profissional e empática, mostrando disposição para resolver. Detalhes sensíveis devem ser tratados no privado", "Agressiva, provando que o cliente está mentindo para todos verem", "Informal, cheia de gírias para parecer moderno", "Padronizada apenas com um link para o site da empresa"], 0],
+        ["No caso de um 'Agendamento de Entrega', qual a responsabilidade do SAC?", ["Acompanhar rigorosamente junto à operação se a carga chegará na data e horário exigidos pelo supermercado ou centro de distribuição", "Garantir que a entrega seja feita 3 dias antes do combinado", "Apenas emitir a nota fiscal", "Nenhuma, isso é problema só do motorista"], 0],
+        ["O que o Analista deve fazer ao identificar uma falha no sistema interno que está gerando informações erradas para os clientes?", ["Documentar o erro com prints e evidências, e abrir um chamado urgente para a equipe de TI (Tecnologia)", "Esconder o erro para não dar trabalho", "Desligar os computadores do SAC", "Dizer aos clientes que o sistema é ruim e não tem jeito"] , 0]
+    ],
+    "supervisor_sac": [
+        ["O que significa o TMR (Tempo Médio de Resposta) em uma operação de SAC?", ["Uma métrica que calcula quanto tempo a equipe leva, em média, para dar o primeiro retorno a uma solicitação do cliente", "O tempo de almoço dos operadores de atendimento", "O tempo que o caminhão demora da origem ao destino", "O prazo de pagamento dos fornecedores"], 0],
+        ["Como a supervisão deve agir para reverter a insatisfação de um cliente (cliente detrator)?", ["Atuar rapidamente na causa raiz do erro, oferecer uma tratativa especial/compensação e garantir que o problema não se repita", "Ignorá-lo, pois ele já ameaçou cancelar o contrato", "Ameaçar bloqueá-lo no sistema", "Oferecer o frete mais caro na próxima cotação para compensar a dor de cabeça"], 0],
+        ["A principal função de um Supervisor de SAC é:", ["Monitorar a qualidade do atendimento, treinar a equipe, gerenciar conflitos graves e analisar métricas para melhoria contínua", "Atender todos os telefones do setor sozinho", "Fazer as rotas dos caminhões de entrega", "Calcular a folha de pagamento da empresa"], 0],
+        ["O que é o CSAT (Customer Satisfaction Score)?", ["Uma pesquisa simples e direta usada para medir o nível de satisfação do cliente com o atendimento pontual que ele acabou de receber", "O código do sistema operacional dos computadores", "Uma taxa governamental de transporte", "Um certificado de segurança para caminhões"], 0],
+        ["Como dar um feedback construtivo para um operador que está com TMR (Tempo de Resposta) muito alto?", ["Sentar com o operador, analisar os chamados juntos, entender as dificuldades técnicas/processuais e criar um plano de ação para melhorar", "Dar uma advertência por escrito logo de cara", "Diminuir o salário dele como punição", "Elogiar o fato de ele ser devagar"], 0],
+        ["O que a métrica NPS (Net Promoter Score) mede?", ["A lealdade do cliente e a probabilidade de ele recomendar a transportadora para outras empresas ou pessoas", "A quantidade de notas fiscais emitidas no dia", "O número de caminhões na frota", "O nível de óleo dos veículos"], 0],
+        ["Como fazer o dimensionamento correto (escala) da equipe de atendimento?", ["Analisar o volume histórico de contatos (ligações/e-mails) por horário e dias da semana, garantindo cobertura nos picos", "Colocar todo mundo para trabalhar no mesmo turno para a sala ficar cheia", "Deixar apenas um funcionário às segundas-feiras", "Sortear os horários dos funcionários toda semana"], 0],
+        ["O setor de SAC costuma ter alto Turnover (rotatividade). Como o supervisor pode combater isso?", ["Melhorando o clima organizacional, dando treinamentos constantes, sendo um líder presente e reconhecendo bons trabalhos", "Aumentando a carga horária de trabalho", "Ameaçando os funcionários de demissão diariamente", "Proibindo conversas no setor"], 0],
+        ["O que é e para que serve uma FAQ (Base de Conhecimento) interna?", ["É um documento/sistema com as respostas para as dúvidas mais comuns, servindo para padronizar e agilizar o trabalho da equipe", "É a lista negra de clientes da empresa", "É o cardápio da lanchonete ao lado da empresa", "É um relatório de lucros do diretor"], 0],
+        ["Em uma gestão de crise (ex: caminhão roubado com carga de 30 clientes diferentes), qual a primeira ação do SAC?", ["Criar um comitê com a operação, padronizar a informação oficial e contatar os clientes ativamente antes que eles liguem cobrando", "Esperar que a notícia saia na TV para ver se os clientes ligam", "Desligar os telefones do setor e ir para casa", "Falar para a equipe inventar qualquer desculpa"], 0],
+        ["Por que é importante promover o alinhamento constante entre o SAC e o Operacional (Galpão)?", ["Porque o SAC depende de informações reais da operação para atender o cliente; sem alinhamento, geram-se atritos e informações falsas", "Para que um setor possa fofocar sobre o outro", "Não é importante, pois eles são empresas diferentes", "Apenas para economizar na conta de telefone interno"], 0],
+        ["Como usar a 'Gamificação' para motivar a equipe de atendimento?", ["Criar dinâmicas, placares e pequenas recompensas baseadas no cumprimento de metas de qualidade e velocidade de resolução", "Colocar videogames nas mesas para eles jogarem o dia todo", "Transformar o trabalho em uma aposta financeira arriscada", "Apostar corrida com os caminhões no pátio"], 0],
+        ["Qual a função da Monitoria de Qualidade (ouvir as ligações gravadas)?", ["Avaliar se o operador segue o script, trata o cliente com cordialidade, passa as informações corretas e identificar necessidades de treinamento", "Procurar motivos para demitir os funcionários mais velhos", "Ouvir conversas pessoais dos funcionários", "Descobrir as fofocas dos clientes"], 0],
+        ["O que significa ter um atendimento 'Omnichannel'?", ["Ter todos os canais de atendimento (telefone, WhatsApp, e-mail) integrados, permitindo que o histórico do cliente seja o mesmo em qualquer canal", "Ter apenas um telefone que não para de tocar", "Um tipo de caminhão que anda em qualquer terreno", "Ter um funcionário que fala todos os idiomas"], 0],
+        ["Como abordar um colaborador do SAC que era muito produtivo e de repente ficou desmotivado?", ["Chamar para uma conversa 1:1 (individual e sigilosa) para entender se há problemas pessoais, falta de recursos ou insatisfação com a empresa", "Ignorar e esperar ele pedir demissão", "Xingar ele na frente de todo o setor", "Passar as tarefas dele para outros"], 0],
+        ["Qual a vantagem de implementar um Chatbot (robô) no WhatsApp da transportadora?", ["Automatizar respostas simples (ex: puxar o status de rastreamento), liberando a equipe humana para resolver problemas complexos", "Demitir toda a equipe e não falar mais com humanos", "Deixar os clientes irritados de propósito", "Vender celulares para os clientes"], 0],
+        ["O que é a taxa de Churn (Churn Rate) e por que o supervisor de SAC deve acompanhá-la?", ["É o índice de clientes que cancelam os contratos/deixam de usar a empresa. O SAC acompanha para identificar se a evasão foi por mau atendimento", "É a taxa de consumo de diesel dos caminhões. O SAC acompanha para cobrar o motorista", "É o número de notas fiscais emitidas no mês", "É a taxa cobrada pelo sindicato patronal"], 0],
+        ["Por que aplicar 'Treinamentos de Reciclagem' na equipe?", ["Para atualizar os operadores sobre novos sistemas, novas rotas, mudanças de processo e garantir que os vícios antigos sejam corrigidos", "Para reciclar o papel do escritório e proteger o meio ambiente", "Apenas para cumprir horário quando não tem ligação", "Para punir quem chegou atrasado"], 0],
+        ["O que significa aplicar o 'Empowerment' (Empoderamento) na equipe de SAC?", ["Dar autonomia para o operador tomar decisões e resolver o problema do cliente até certo limite (ex: aprovar uma indenização pequena) sem precisar do chefe", "Dar poder para eles demitirem os colegas", "Obrigar a equipe a limpar a sala do supervisor", "Tirar a responsabilidade da liderança e culpar a base"], 0],
+        ["Ao elaborar um Relatório Mensal para a Diretoria, o supervisor deve:", ["Apresentar os principais KPIs (TMR, CSAT), destacar os maiores ofensores (problemas) do mês e mostrar os planos de ação de forma visual e objetiva", "Escrever 50 páginas de texto sem nenhum gráfico", "Apenas dizer que 'está tudo bem'", "Esconder os problemas para não parecer um mau supervisor"] , 0]
+    ],
+
+    // --- SETOR COMERCIAL ---
+    "assistente_comercial": [
+        ["O que significa fazer 'Follow-up' com um cliente?", ["Fazer contatos de acompanhamento após enviar uma proposta de frete para saber a decisão dele", "Enviar a nota fiscal de cobrança pelo serviço já feito", "Cancelar o pedido de transporte por falta de caminhão", "Bloquear o cliente no sistema de vendas"], 0],
+        ["Na abertura de um cadastro de cliente pessoa jurídica (empresa), qual o documento principal solicitado?", ["Cartão CNPJ atualizado", "CPF e RG do motorista", "Conta de luz da transportadora", "Carteira de habilitação do vendedor"], 0],
+        ["O suporte comercial ao vendedor externo inclui:", ["Elaborar orçamentos, verificar disponibilidade de frota no sistema e agilizar cadastros", "Fazer as visitas nos clientes no lugar do vendedor", "Lavar os caminhões da frota", "Aprovar pagamentos financeiros e cheques"], 0],
+        ["O que é um CRM (Customer Relationship Management)?", ["Um sistema usado para registrar contatos, propostas e gerenciar o relacionamento com os clientes", "Um imposto cobrado sobre vendas de frete", "O rádio comunicador dos motoristas", "Um tipo de caminhão refrigerado"], 0],
+        ["Qual a diferença entre frete 'Fracionado' e 'Lotação (Carga Fechada)'?", ["Fracionado divide o caminhão com cargas de outros clientes; Lotação é o caminhão exclusivo para um cliente", "Fracionado é mais rápido; Lotação demora meses", "Fracionado é de graça; Lotação é pago", "Não existe diferença na tabela de preços"], 0],
+        ["Ao receber uma solicitação de cotação de frete por e-mail, o assistente deve:", ["Responder rapidamente com as informações necessárias ou pedir os dados que faltam (peso, dimensões, origem e destino)", "Ignorar se achar que o cliente não vai fechar", "Passar o e-mail para o setor financeiro", "Mandar um preço qualquer sem calcular"], 0],
+        ["O que é a 'Cubagem' de uma carga?", ["A relação entre o espaço físico que a carga ocupa no caminhão e o seu peso real", "A embalagem de madeira da mercadoria", "O seguro pago contra roubo de carga", "O nome do galpão de armazenamento"], 0],
+        ["O que é a taxa de GRIS cobrada na tabela de frete?", ["Gerenciamento de Risco: taxa cobrada para cobrir custos com segurança e prevenção de roubo da carga", "Taxa para lavar o caminhão após a viagem", "Imposto federal sobre o diesel", "Gorjeta do motorista"], 0],
+        ["Se um cliente reclamar do preço do frete com o assistente, qual a melhor abordagem inicial?", ["Entender o motivo, destacar os benefícios (prazo, segurança) e repassar ao vendedor ou supervisor para negociação", "Desligar o telefone na cara dele", "Dar 50% de desconto por conta própria imediatamente", "Dizer que a empresa concorrente é mais barata mesmo"], 0],
+        ["Qual a importância de manter o cadastro de clientes atualizado no sistema?", ["Garantir que notas fiscais e boletos sejam emitidos corretamente, evitando devoluções e atrasos no pagamento", "Apenas para o sistema não travar", "Para o vendedor poder mandar mensagens de 'Bom dia'", "Não tem importância, o cliente atualiza sozinho"], 0],
+        ["O que é o 'Ad Valorem' (Frete Valor)?", ["Uma taxa calculada sobre o valor da nota fiscal da mercadoria para cobrir os custos de seguro durante o transporte", "O valor do pedágio da viagem", "O valor do almoço do motorista", "O lucro líquido da transportadora"], 0],
+        ["Como o assistente deve organizar as propostas enviadas e não respondidas?", ["Criar uma rotina de retornos (agendas ou CRM) para cobrar uma posição do cliente após alguns dias", "Apagar do sistema para não acumular lixo digital", "Ligar de 5 em 5 minutos até o cliente responder", "Esquecer a proposta e focar apenas em quem liga"], 0],
+        ["O que significa 'Cross-selling' na venda de transportes?", ["Oferecer serviços adicionais a um cliente que já compra com você (ex: ele faz carga seca, você oferece refrigerada também)", "Vender o mesmo frete mais barato para o concorrente", "Cruzar os braços e esperar o cliente ligar", "Cancelar o contrato de um cliente antigo"], 0],
+        ["Na conferência de uma tabela de fretes, o que significa a sigla 'KM'?", ["Quilometragem (distância percorrida)", "Kilos Mensais", "Kit de Manutenção", "Kilos de Mercadoria"], 0],
+        ["Se o vendedor externo solicitar uma cotação urgente enquanto está no cliente, o assistente deve:", ["Dar prioridade à solicitação, pois o vendedor está com o cliente aguardando a resposta para fechar o negócio", "Fazer de propósito para demorar e ensinar o vendedor a ter paciência", "Mandar o vendedor calcular sozinho", "Ir tomar café e responder depois"], 0],
+        ["Qual a postura correta ao atender o telefone no setor comercial?", ["Identificar a empresa, dizer seu nome, dar bom dia/boa tarde e perguntar como pode ajudar", "Dizer apenas 'Alô'", "Deixar tocar 10 vezes antes de atender", "Atender e pedir para o cliente ligar mais tarde"], 0],
+        ["O que é o 'Lead' no setor de vendas?", ["Um potencial cliente que demonstrou interesse no serviço ou tem o perfil ideal para ser prospectado", "O líder da equipe de vendas", "O caminhão que vai na frente da frota", "O cliente que não pagou a fatura"], 0],
+        ["Para gerar um contrato de prestação de serviços de transporte, o assistente precisa principalmente de:", ["Dados cadastrais da empresa, tabela de preços negociada, prazos e condições de pagamento", "Nome da mãe do dono da empresa cliente", "A cor preferida do cliente", "A marca do caminhão que fará a coleta"], 0],
+        ["Se um Lead (contato) não tem o perfil da transportadora (ex: pede frete de moto e a empresa só tem carreta), o que fazer?", ["Agradecer o contato, explicar educadamente o perfil de carga da empresa e encerrar o atendimento", "Xingar o cliente por perder seu tempo", "Aceitar o frete e depois ver como resolve", "Transferir para o suporte de TI"], 0],
+        ["O que é 'SLA de Atendimento Comercial'?", ["O tempo máximo combinado que o setor tem para enviar um orçamento após a solicitação do cliente", "O tempo de viagem do caminhão", "A meta de ligações por dia", "O salário do assistente comercial"] , 0]
+    ],
+    "vendedor": [
+        ["Na prospecção de um cliente B2B (empresas), o foco inicial da abordagem deve ser:", ["Fazer perguntas para entender as dores logísticas dele e depois apresentar a transportadora como solução", "Oferecer o frete mais caro logo de cara", "Falar mal de todos os concorrentes da região", "Pedir o CNPJ para faturar sem nem explicar o serviço"], 0],
+        ["O que compõe a 'Tabela de Frete' padrão de uma transportadora?", ["Frete peso, frete valor (Ad Valorem), GRIS, pedágio e taxas adicionais (ex: TDE, TRT)", "Apenas a distância multiplicada pelo valor do diesel", "O salário do vendedor mais a comissão", "Um valor fixo tirado da cabeça do dono"], 0],
+        ["Ao enfrentar uma objeção forte de preço ('seu frete está muito caro'), a melhor estratégia é:", ["Não baixar o preço imediatamente, mas justificar o valor agregado: prazos cumpridos, rastreamento e segurança da carga", "Desligar o telefone ou ir embora", "Dar o desconto máximo que puder na mesma hora", "Dizer que o cliente é pão-duro"], 0],
+        ["O que é um 'Cold Call' (Ligação Fria)?", ["Ligar para um potencial cliente que nunca teve contato com a sua empresa antes, com o objetivo de apresentar o serviço", "Ligar para o cliente em dias de muito frio", "Ligar para cancelar um frete", "Uma ligação que cai no meio da conversa"], 0],
+        ["No funil de vendas, o que significa a etapa de 'Qualificação'?", ["Avaliar se a empresa prospectada tem volume de carga, capacidade de pagamento e perfil para comprar da transportadora", "Aprovar a contratação de um novo motorista", "Garantir que a carga chegou sem amassar", "Emitir o certificado de qualidade do caminhão"], 0],
+        ["Se o cliente pedir um desconto que zera a margem de lucro da transportadora, o vendedor deve:", ["Recusar educadamente, tentar negociar contrapartidas (ex: maior volume de carga) ou focar em clientes mais rentáveis", "Aceitar o frete mesmo com prejuízo para bater a meta de volume", "Aceitar e depois cobrar a diferença escondido na nota fiscal", "Pagar a diferença do próprio bolso"], 0],
+        ["O que é o B2B (Business to Business)?", ["O modelo de negócio onde empresas vendem produtos ou serviços para outras empresas", "Um modelo de caminhão bitrem", "Uma taxa bancária", "Vender serviços diretamente para pessoas físicas na rua"], 0],
+        ["Por que é fundamental o vendedor conhecer a concorrência?", ["Para saber destacar os diferenciais da sua transportadora e argumentar melhor quando o cliente comparar os serviços", "Para enviar currículo para eles", "Para copiar exatamente a mesma tabela de preços", "Para poder xingá-los nas redes sociais"], 0],
+        ["O que significa 'Fechamento de Vendas'?", ["O momento em que o cliente aceita a proposta, assina o contrato ou autoriza a primeira coleta de mercadoria", "Quando a transportadora encerra o expediente às 18h", "O ato de trancar as portas do galpão", "Desistir de um cliente difícil"], 0],
+        ["O que é 'Rapport' em vendas?", ["A técnica de criar empatia, sintonia e confiança com o cliente durante a negociação", "Um relatório de despesas de viagem do vendedor", "Uma marca de pneus para caminhão", "O processo de devolução de mercadoria"], 0],
+        ["Ao vender um frete, o que o vendedor precisa deixar muito claro para o cliente?", ["O prazo de entrega real, as regras de cubagem, o que está incluso no preço e as condições de pagamento", "Apenas o valor final, escondendo as taxas extras", "O nome de todos os motoristas da frota", "As fofocas do mercado de logística"], 0],
+        ["Qual a importância da Pós-Venda para o Vendedor de transportes?", ["Garantir que a primeira carga ocorra bem, gerar confiança e fidelizar o cliente para compras recorrentes", "Nenhuma, depois que vendeu a responsabilidade é só do SAC", "Apenas para cobrar boletos atrasados", "Para pedir aumento para o chefe"], 0],
+        ["O que é 'Up-selling'?", ["Oferecer uma modalidade de serviço superior ou mais completa (ex: trocar o frete normal por um frete expresso/urgente)", "Vender o serviço mais barato da empresa", "Vender a frota da empresa", "Cancelar a venda por falta de caminhão"], 0],
+        ["O que é um Perfil de Ciente Ideal (ICP)?", ["A descrição do tipo de empresa que mais se beneficia do seu serviço, que dá lucro e tem menos problemas operacionais", "O cliente que paga mais caro sem reclamar", "Qualquer pessoa que tenha um CPF", "O cliente que processa a transportadora"], 0],
+        ["Como lidar com o 'Gatekeeper' (a secretária ou recepcionista que bloqueia o acesso ao tomador de decisão)?", ["Tratá-lo com máximo respeito, ser transparente sobre o motivo da ligação e torná-lo um aliado para chegar ao decisor", "Tentar enganá-lo inventando mentiras", "Ser grosseiro para mostrar autoridade", "Desistir da venda no primeiro 'não'"], 0],
+        ["Em negociações complexas, o que é a técnica de 'Ancoragem de Preço'?", ["Apresentar primeiro o valor cheio ou a opção mais completa, criando uma referência de preço na mente do cliente antes de negociar", "Jogar uma âncora no caminhão para ele não andar", "Falar o preço mais barato possível no primeiro segundo de conversa", "Recusar-se a falar de preço"], 0],
+        ["Se um cliente promissor está enrolando há meses para fechar contrato, qual a ação recomendada?", ["Fazer perguntas diretas sobre os obstáculos da decisão, criar um senso de urgência ou entender se é hora de focar em outros leads", "Ficar ligando todo dia apenas para perguntar 'e aí?'", "Ir na porta da empresa dele e não sair até ele assinar", "Excluí-lo do sistema sem tentar entender o motivo"], 0],
+        ["Qual a principal métrica pessoal de sucesso de um vendedor comercial?", ["O volume de receita (faturamento) e a rentabilidade (margem de lucro) dos contratos que ele fecha", "Quantas horas ele fica no telefone", "Quantos cafés ele toma na empresa", "O número de caminhões que ele sabe dirigir"], 0],
+        ["Ao descobrir que o cliente fechou com a concorrência, a atitude correta do vendedor é:", ["Agradecer a oportunidade, perguntar respeitosamente o fator decisivo (preço, prazo) para aprender, e manter a porta aberta para o futuro", "Ficar com raiva e ofender o cliente", "Apagar o contato dele para sempre", "Ir na concorrência tirar satisfação"], 0],
+        ["O que é uma venda consultiva em logística?", ["Atuar como um especialista que analisa a operação do cliente e propõe a melhor solução de transporte para o negócio dele", "Empurrar qualquer tabela de preço sem entender o que o cliente fabrica", "Vender frete por catálogo igual cosmético", "Ler um roteiro pronto sem ouvir o cliente"] , 0]
+    ],
+    "supervisor_comercial": [
+        ["O que é o Funil de Vendas?", ["A representação visual da jornada do cliente, desde a prospecção (topo) até o fechamento do contrato (fundo)", "O local onde se coloca combustível no caminhão da empresa", "Um documento fiscal emitido pelo governo", "O gráfico que mostra as despesas da transportadora"], 0],
+        ["Ao definir as metas da equipe de vendedores, o supervisor deve garantir que sejam:", ["Desafiadoras, porém realistas, mensuráveis e com prazos definidos (Metas SMART)", "Impossíveis de bater para não precisar pagar comissão", "Fáceis demais, para que todos batam a meta no primeiro dia do mês", "Baseadas apenas na intuição do dono da empresa"], 0],
+        ["Uma estratégia eficiente para expansão de mercado e rotas é:", ["Mapear regiões com alta demanda (polos industriais), analisar a concorrência e direcionar a prospecção da equipe para esses locais", "Mandar os caminhões vazios rodarem pelo país para ver se acham carga", "Comprar empresas concorrentes sem fazer nenhuma análise prévia", "Demitir vendedores das rotas que já dão lucro"], 0],
+        ["O que é a Taxa de Conversão em vendas?", ["O percentual de negócios ganhos em relação ao total de propostas ou contatos feitos pela equipe", "A taxa de câmbio do Dólar para o Real", "A taxa de juros do banco", "A velocidade com que o caminhão converte na curva"], 0],
+        ["Como o supervisor deve atuar com um vendedor que não está batendo as metas há três meses?", ["Analisar os números dele (funil, ligações), identificar onde está a falha (técnica ou motivacional), dar treinamento e acompanhar de perto", "Demitir imediatamente sem conversar", "Fazer as vendas no lugar dele e dar a comissão para ele", "Expor o vendedor na frente de toda a equipe para envergonhá-lo"], 0],
+        ["O que é CAC (Custo de Aquisição de Cliente)?", ["O valor que a empresa gasta (marketing, salário, visitas) para conseguir fechar contrato com um cliente novo", "O preço de compra de uma carreta nova", "A taxa do seguro da carga", "A comissão do motorista"], 0],
+        ["No mercado B2B, o que significa a gestão de Key Accounts (Contas-Chave)?", ["Um atendimento dedicado e estratégico focado nos clientes mais importantes e que trazem o maior faturamento para a transportadora", "A gestão das senhas do banco da empresa", "O setor que guarda as chaves dos caminhões", "O bloqueio de clientes que dão muito trabalho"], 0],
+        ["Por que é importante o Supervisor Comercial realizar o 'Forecast' (Previsão de Vendas)?", ["Para estimar o faturamento futuro e ajudar a empresa a se preparar operacionalmente (ex: contratar agregados, investir em frota)", "Apenas para fazer a previsão do tempo na rodovia", "Para decidir quem vai tirar férias no mês", "Para esconder os números reais da diretoria"], 0],
+        ["O que é o Churn Rate na área comercial?", ["A métrica que indica a taxa de clientes que pararam de usar a transportadora em um determinado período", "A taxa de crescimento do faturamento", "O desconto máximo autorizado na tabela", "O imposto pago na fronteira do estado"], 0],
+        ["Como garantir que a equipe não venda fretes com prejuízo para a transportadora?", ["Definir regras claras de alçada de desconto, alinhar custos com o financeiro e auditar a rentabilidade das propostas enviadas", "Deixar os vendedores darem o desconto que quiserem para garantir o volume", "Proibir qualquer tipo de negociação de preço", "Cobrar a diferença do salário do motorista"], 0],
+        ["Qual o papel do CRM na gestão do Supervisor Comercial?", ["Permitir a visão em tempo real das negociações, medir a produtividade da equipe e evitar que dados de clientes sejam perdidos", "Servir apenas como uma agenda telefônica cara", "Vigiar os e-mails pessoais dos vendedores", "Rastrear a localização dos caminhões por satélite"], 0],
+        ["O que é LTV (Life Time Value) de um cliente na transportadora?", ["O valor total (lucro/faturamento) que o cliente traz para a empresa durante todo o tempo em que mantém contrato com ela", "O peso máximo que o cliente pode enviar por vida", "O valor de revenda de um caminhão usado", "O tempo de vida útil do pneu da frota"], 0],
+        ["Ao criar um plano de comissionamento, o principal objetivo deve ser:", ["Incentivar o volume de vendas, mas também recompensar vendas saudáveis (com boa margem de lucro) e a retenção de clientes", "Pagar o mínimo possível para economizar", "Pagar comissão apenas para quem trouxer carga de retorno", "Comissionar baseado em quem é mais simpático"], 0],
+        ["Se a diretoria exige aumento de 20% no faturamento no próximo trimestre, a primeira ação do supervisor é:", ["Desdobrar essa meta global em metas individuais, analisar o funil atual e traçar planos de ação (ex: campanhas, novas rotas, upsell)", "Dizer que é impossível e cruzar os braços", "Aumentar o preço da tabela de todos os clientes em 20% no mesmo dia", "Demitir metade da equipe para reduzir custos"], 0],
+        ["O que significa 'Market Share'?", ["A fatia (participação) de mercado que a sua transportadora domina em relação aos concorrentes de uma mesma região ou segmento", "Um mercado onde os motoristas fazem compras", "O compartilhamento de caminhões com concorrentes", "A divisão dos lucros entre os sócios"], 0],
+        ["Qual a melhor forma de realizar uma Reunião de Vendas (One-on-One) com um vendedor?", ["Focar na análise dos resultados individuais, ouvir os desafios, dar feedback estruturado e definir os próximos passos estratégicos", "Usar o tempo para falar de futebol e política", "Cobrar as metas aos gritos para gerar medo", "Apenas ler e-mails em silêncio juntos"], 0],
+        ["O que é o BANT (Budget, Authority, Need, Timeline) na qualificação de Leads?", ["Uma técnica para validar se o prospect tem Orçamento, Autoridade para decidir, Necessidade do serviço e Prazo para fechar", "O nome do sindicato nacional de transportes", "A marca de um sistema de rastreamento", "Um código penal para roubo de carga"], 0],
+        ["Como o Supervisor Comercial deve lidar com atritos entre Vendas e Operação (ex: vendedor promete entrega que o operacional não consegue cumprir)?", ["Atuar como mediador, alinhando as promessas de venda à realidade operacional e criando SLAs claros entre os departamentos", "Dar sempre razão ao vendedor, pois ele traz dinheiro", "Dar sempre razão à operação e proibir novas vendas", "Ignorar e deixar eles brigarem sozinhos"], 0],
+        ["O que é a 'Curva ABC' de clientes?", ["Uma análise que classifica os clientes em A, B e C com base no impacto deles no faturamento (onde A são os mais importantes/rentáveis)", "O formato das rodovias mais perigosas do estado", "A ordem alfabética da lista telefônica", "A classificação dos caminhões pelo tamanho"], 0],
+        ["Para reter grandes talentos (vendedores de alta performance) na equipe, o supervisor deve:", ["Proporcionar um ambiente de meritocracia, plano de carreira claro, reconhecimento frequente e remuneração variável agressiva e justa", "Pagá-los igual aos vendedores ruins para não gerar inveja", "Não elogiar para que eles não peçam aumento", "Tirar as melhores contas deles para eles trabalharem mais"] , 0]
+    ],
+
+    // --- SETOR OPERACIONAL ---
+    "auxiliar_operacional": [
+        ["O que significa a sigla EPI e para que serve?", ["Equipamento de Proteção Individual (ex: bota, luva), usado para garantir a segurança no trabalho", "Entrega de Produto Interno, usado para rotas curtas", "Estoque de Paletes Isolados, uma área do galpão", "Etiqueta de Peso Ideal, usada nas caixas"], 0],
+        ["Ao movimentar caixas pesadas no armazém, você deve:", ["Usar equipamentos adequados (paleteiras/carrinhos) ou pedir ajuda a um colega, dobrando os joelhos ao levantar", "Levantar todo o peso sozinho com as costas curvadas", "Arrastar a caixa pelo chão de qualquer jeito", "Deixar a caixa no caminho das empilhadeiras"], 0],
+        ["A organização e limpeza da doca (área de carregamento) são importantes para:", ["Agilizar a operação, evitar acidentes de trabalho e prevenir avarias (danos) nas mercadorias", "Deixar o espaço bonito para fotos", "Aumentar o valor do aluguel do imóvel", "Fazer os funcionários caminharem mais"], 0],
+        ["O que é um 'Palete' na logística?", ["Um estrado (geralmente de madeira ou plástico) usado como base para empilhar e movimentar cargas com facilidade", "Um tipo de caminhão pequeno", "A lona que cobre a carreta", "O recibo de entrega da mercadoria"], 0],
+        ["O que você deve fazer ao notar que uma caixa com símbolo de 'Taça Quebrada' (Frágil) está no fundo de uma pilha?", ["Avisar o conferente e reposicionar a caixa frágil no topo da pilha para evitar que seja esmagada", "Deixar lá, pois a caixa de cima é leve", "Chutar a pilha para arrumar", "Jogar a caixa no lixo"], 0],
+        ["O que é o processo de 'Picking' (Separação)?", ["A coleta e separação dos produtos corretos no estoque para montar o pedido que será embarcado", "A lavagem do caminhão", "O pagamento do motorista", "O processo de devolução de mercadoria"], 0],
+        ["Como deve ser o uso do celular pessoal durante a operação na doca ou movimentação de empilhadeiras?", ["Deve ser guardado, pois a distração pode causar acidentes graves ou atropelamentos", "Pode ser usado para ouvir música alta", "Pode ser usado para filmar os colegas trabalhando", "É obrigatório para falar com a família"], 0],
+        ["Se você derrubar e danificar uma mercadoria acidentalmente, qual a atitude correta?", ["Avisar o supervisor ou conferente imediatamente para que a carga não seja enviada quebrada ao cliente", "Esconder a caixa atrás de outras mercadorias", "Tentar colar com fita e não contar a ninguém", "Colocar a culpa no motorista"], 0],
+        ["Para que serve a 'Paleteira Manual' (carrinho hidráulico)?", ["Para levantar e movimentar paletes pesados pelo piso do galpão em curtas distâncias", "Para erguer cargas até o teto", "Para o funcionário andar em cima", "Para pesar o caminhão"], 0],
+        ["O que indicam as faixas amarelas pintadas no chão do armazém?", ["Demarcam áreas de segurança, corredores de passagem de pedestres e rotas de empilhadeiras", "São apenas para decoração do ambiente", "Indicam onde é permitido fumar", "Mostram o caminho para o banheiro"], 0],
+        ["Se houver derramamento de líquido (ex: óleo ou produto químico) no piso do galpão, o que fazer primeiro?", ["Isolar a área para evitar escorregões, avisar a liderança e usar o material adequado para limpeza/absorção", "Ignorar e continuar trabalhando", "Jogar água por cima", "Beber o líquido para ver o que é"], 0],
+        ["Ao carregar um caminhão baú, as caixas mais pesadas devem ficar:", ["Na base (chão) e bem distribuídas, para dar estabilidade, com as caixas leves por cima", "No teto do caminhão", "Apenas do lado direito do baú", "Apenas na porta traseira do baú"], 0],
+        ["O que é a etiqueta de identificação da carga?", ["Um adesivo contendo dados cruciais (destinatário, nota fiscal, volume, código de barras) para a carga não se perder", "O preço de venda do produto no mercado", "O selo de imposto do governo", "O nome do fabricante do papelão"], 0],
+        ["Por que não se deve empilhar mercadorias além do limite indicado na caixa (ex: Máximo 5 caixas)?", ["Para evitar que a caixa de baixo amasse e o produto seja danificado (avaria por esmagamento)", "Para não dar muito trabalho para a empilhadeira", "Para a carga caber no carro do motorista", "Não há problema em ultrapassar o limite"], 0],
+        ["O que é a cinta de amarração ou catraca?", ["Um equipamento usado para prender e estabilizar a carga no caminhão, evitando que ela tombe nas curvas", "O cinto de segurança do ajudante", "Uma fita crepe usada em caixas", "Um tipo de uniforme de trabalho"], 0],
+        ["Como deve ser a postura de um Auxiliar Operacional em relação ao horário de trabalho?", ["Ser pontual, pois o atraso de um atrasa toda a fila de carregamento e a saída dos caminhões", "Chegar no horário que quiser, pois sempre tem carga", "Sair mais cedo se estiver chovendo", "Fazer pausas a cada 10 minutos sem avisar"], 0],
+        ["Qual a regra básica ao transitar perto de uma empilhadeira em movimento?", ["Manter distância segura, fazer contato visual com o operador e esperar ele parar antes de se aproximar", "Correr na frente dela para passar mais rápido", "Pegar carona na lateral da máquina", "Gritar com o operador para ele sair do caminho"], 0],
+        ["O que significa o termo 'Carga Solta' (ou Batida)?", ["Mercadorias que são carregadas individualmente (caixa a caixa) no caminhão, sem o uso de paletes", "Uma carga que caiu na estrada", "Um tipo de animal vivo", "A carga que não tem nota fiscal"], 0],
+        ["Se o motorista pedir para carregar um volume que não está na lista de embarque, o auxiliar deve:", ["Recusar e chamar o conferente ou supervisor, pois tudo o que entra/sai do caminhão deve ter registro", "Colocar no caminhão para ajudar o motorista", "Cobrar dinheiro por fora para colocar", "Fingir que não viu"], 0],
+        ["O que é a lona de cobertura?", ["O material resistente usado nos caminhões de carroceria aberta (carga seca) para proteger a mercadoria do sol e da chuva", "O tapete da recepção da transportadora", "A roupa de chuva do motorista", "Uma rede para pescar"] , 0]
+    ],
+    "conferente": [
+        ["Durante a conferência, você percebe que o físico (mercadoria) é menor que o descrito na Nota Fiscal. O que fazer?", ["Separar a carga, não autorizar o embarque/desembarque e avisar a supervisão imediatamente para tratar a divergência", "Carregar o veículo assim mesmo e deixar faltar no cliente", "Anotar num pedaço de papel e guardar no bolso", "Pedir para o motorista assinar que recebeu completo"], 0],
+        ["O que é Cubagem na logística e por que o conferente deve checá-la?", ["É a relação entre volume (tamanho) e peso. O conferente checa para garantir que o caminhão não lote de 'vento' ou passe do peso limite", "É o número de rodas do caminhão, para saber quantos eixos ele tem", "É a distância em quilômetros da entrega", "É o valor do seguro pago pela carga"], 0],
+        ["Se uma caixa chega molhada, amassada ou com fita violada para transferência, o conferente deve:", ["Registrar a avaria com fotos, isolar o volume e reter o envio até autorização do SAC ou da chefia", "Tentar secar ou passar uma fita por cima para esconder o defeito", "Jogar a caixa no lixo do galpão", "Entregar para o motorista sem avisar nada no sistema"], 0],
+        ["O que é o 'Coletor de Dados' (ou bipador)?", ["Um aparelho eletrônico com leitor de código de barras usado para conferir as notas fiscais e atualizar o sistema em tempo real", "O rádio de comunicação com a base", "O aparelho que mede a pressão do pneu do caminhão", "Uma calculadora grande"], 0],
+        ["O que significa o processo de Cross-Docking?", ["Receber a mercadoria na doca e, em vez de guardar no estoque, já separá-la e transferi-la para o caminhão de entrega rapidamente", "Cruzar a balsa com o caminhão", "Lavar as docas de carregamento", "O processo de contratação de um motorista terceirizado"], 0],
+        ["Qual a importância da conferência 'Cega'?", ["É quando o conferente conta as mercadorias sem saber a quantidade exata da nota, forçando uma contagem real e evitando falhas", "É conferir a carga de olhos vendados", "É carregar o caminhão no escuro", "É assinar a nota fiscal sem olhar para a carga"], 0],
+        ["O que é um 'Romaneio de Carga' (ou Manifesto)?", ["Um documento que lista detalhadamente todas as mercadorias, notas e destinos que estão dentro daquele caminhão", "O cardápio de almoço do refeitório", "O manual de instruções da empilhadeira", "O recibo de pagamento do pedágio"], 0],
+        ["Ao lacrar a porta de um caminhão baú, qual o procedimento correto?", ["Anotar o número do lacre no conhecimento de transporte/romaneio para que o destino saiba que a carga não foi violada na estrada", "Jogar o lacre fora após fechar a porta", "Usar qualquer cadeado velho", "Deixar a porta destrancada por segurança"], 0],
+        ["Se o caminhão encostar na doca para descarregar e o lacre estiver rompido ou com numeração diferente do documento, o que fazer?", ["Bloquear a descarga, comunicar o supervisor de segurança/risco imediatamente e fotografar o lacre antes de abrir", "Abrir rápido para ver se sumiu algo", "Colocar um lacre novo e fingir que nada aconteceu", "Cobrar o motorista e liberar a carga"], 0],
+        ["Na arrumação da carga (estivagem), por que produtos tóxicos/químicos não devem ir junto com alimentos?", ["Por risco de contaminação grave, o que é proibido por normas sanitárias e de transporte (ANTT/Anvisa)", "Porque os alimentos amassam a embalagem do produto químico", "Apenas para não misturar as cores das caixas", "Eles podem ir juntos sem problemas se o caminhão for grande"], 0],
+        ["O que é FIFO (First In, First Out) ou PEPS (Primeiro a Entrar, Primeiro a Sair)?", ["Uma regra de estoque onde o lote mais antigo deve ser o primeiro a ser embarcado/despachado para evitar vencimento", "Uma regra onde o último caminhão que chega é o primeiro a sair", "A punição para quem chega atrasado", "A taxa do banco para pagamentos em atraso"], 0],
+        ["O que é o 'Tara' de um veículo?", ["O peso do caminhão vazio (sem carga), que deve ser descontado na balança para saber o peso real da mercadoria", "O nome do modelo da carreta", "O tipo de lona utilizada", "O apelido do motorista ajudante"], 0],
+        ["Se o motorista terceirizado se recusar a ajudar ou conferir a carga junto com você na doca, qual a postura correta?", ["Concluir a sua conferência rigorosamente, exigir a assinatura dele como recebedor e relatar a postura ao supervisor", "Brigar fisicamente com o motorista", "Deixar a carga no chão e ir embora", "Carregar o caminhão de qualquer jeito sem anotar nada"], 0],
+        ["Para mercadorias perigosas (Inflamáveis, Corrosivos), o que é obrigatório verificar antes do embarque?", ["Se as caixas têm os rótulos de risco (símbolos da ONU) e se o motorista tem o curso MOPP e as placas de sinalização no caminhão", "Se a mercadoria é bonita", "Se o pagamento do frete foi feito em dinheiro", "Se o caminhão foi lavado no dia"], 0],
+        ["O que é a 'Logística Reversa' no dia a dia da doca?", ["Receber e conferir cargas que o cliente recusou ou devolveu, dando o destino correto de volta para a fábrica ou estoque de avarias", "Carregar o caminhão de marcha ré", "Devolver o salário do funcionário", "Desmontar o motor do caminhão"], 0],
+        ["Ao identificar uma 'Sobra' de carga (físico maior que a Nota), o que deve ser feito?", ["Reter a mercadoria extra na base e informar o atendimento/SAC para que descubram de qual cliente/caminhão aquela caixa se perdeu", "Levar a mercadoria extra para casa", "Doar a mercadoria para o motorista", "Jogar fora para a contagem bater"], 0],
+        ["Qual a função da etiqueta de roteirização (ou etiqueta de volume)?", ["Indicar o destino, filial ou número da rota para que o conferente coloque a caixa na doca e no caminhão corretos", "Apenas deixar a caixa mais colorida", "Esconder a marca original do produto", "Avisar o valor do imposto"], 0],
+        ["O que significa 'bater a praça' na hora de carregar um caminhão de entregas urbanas?", ["Carregar as últimas entregas da rota no fundo do baú, e as primeiras entregas perto da porta, facilitando o trabalho do motorista", "Amassar as caixas na parede", "Cobrar pedágio dentro da cidade", "Bater na porta do cliente para acordá-lo"], 0],
+        ["O que é o inventário de estoque na transportadora (ou galpão)?", ["A contagem física de todas as mercadorias paradas na base, para comparar com os dados do sistema e encontrar erros ou extravios", "A lista de peças de reposição da oficina", "A venda de mercadorias antigas", "A limpeza geral do pátio"], 0],
+        ["O conferente é responsável por assinar o romaneio ou o canhoto. O que essa assinatura significa legalmente?", ["Atesta que ele conferiu e garante que as informações de peso, quantidade e estado da carga descritas no papel são verdadeiras", "É apenas um autógrafo sem valor", "Significa que ele aprovou o pagamento do frete", "Garante que o caminhão não vai quebrar na estrada"] , 0]
+    ],
+    "supervisor_operacional": [
+        ["O que é Roteirização em uma operação de transportes?", ["O planejamento estratégico do melhor trajeto para as entregas, visando economia de diesel, pedágio e menor tempo de viagem", "A vistoria mecânica diária dos pneus dos caminhões", "O processo de entrevista e contratação de motoristas", "A aprovação do pagamento das diárias de viagem"], 0],
+        ["Ao identificar que uma equipe está demorando o dobro do tempo para carregar um veículo, o supervisor deve:", ["Acompanhar a operação na doca para identificar o gargalo (falta de empilhadeira, layout ruim, desmotivação) e agir na causa", "Gritar com a equipe de dentro do escritório", "Descontar o atraso do salário deles", "Contratar o dobro de pessoas sem avaliar o problema real"], 0],
+        ["Garantir o limite de peso e a distribuição correta da carga no eixo do caminhão serve para:", ["Evitar multas do DER nas balanças, prevenir desgaste prematuro das peças do caminhão e reduzir o risco de tombamentos", "Apenas para cumprir regra chata da gerenciadora de risco", "Aumentar a velocidade do caminhão na subida da serra", "Economizar lona de cobertura"], 0],
+        ["O que é o tempo de 'Turnaround' (ou tempo de pátio)?", ["O tempo total que o caminhão gasta desde que entra na portaria da transportadora até a hora que sai carregado e liberado", "O tempo que o motorista gasta no almoço", "A vida útil do pneu antes de recapagem", "A quantidade de giros do motor por minuto"], 0],
+        ["Como o Supervisor Operacional atua na manutenção preventiva da frota?", ["Criando um cronograma de revisões periódicas (óleo, freios, pneus) para cada veículo, evitando que eles quebrem no meio de uma entrega", "Consertando os caminhões com as próprias mãos", "Vendendo as peças velhas na internet", "Ignorando os barulhos até o caminhão parar de vez"], 0],
+        ["O que significa o 'O.T.I.F.' (On Time In Full)?", ["Um indicador de excelência que mede quantas entregas foram feitas no Prazo (On Time) e Completas/Sem Avarias (In Full)", "O controle de ponto eletrônico da portaria", "Um imposto sobre o transporte intermunicipal", "O nome do sistema do rastreador do caminhão"], 0],
+        ["Se um motorista avisa que o caminhão quebrou na rodovia com carga perecível, qual a primeira ação da supervisão?", ["Acionar socorro mecânico e avaliar imediatamente o envio de outro veículo para o transbordo (troca) da carga antes que ela estrague", "Mandar o motorista empurrar o caminhão", "Esperar até o dia seguinte para economizar com guincho", "Ligar para o cliente e mandar ele ir buscar a carga na estrada"], 0],
+        ["O que exige o Plano de Gerenciamento de Risco (PGR) de uma apólice de seguro de carga?", ["Regras que a operação deve seguir (ex: horário de viagem, locais de parada autorizados, uso de escolta) para o seguro ter validade em caso de roubo", "A cor padrão que a frota deve ser pintada", "O valor exato do salário do motorista", "Que o caminhão ande sempre acima da velocidade permitida"], 0],
+        ["Como gerenciar o absenteísmo (faltas) excessivo da equipe de ajudantes de carga?", ["Entender as causas (ex: trabalho excessivamente pesado, clima ruim), aplicar rodízio de tarefas, melhorar a ergonomia e dar feedbacks constantes", "Demitir todo mundo na primeira falta sem atestado", "Aumentar a carga de trabalho de quem veio para compensar", "Fechar a empresa nos dias de muita falta"], 0],
+        ["O que é a 'Lei do Motorista' (Lei 13.103) em relação à jornada de trabalho?", ["A lei que exige o controle de jornada (tempo de direção, pausas obrigatórias para descanso e repouso diário) para garantir a segurança", "A lei que proíbe o motorista de ouvir rádio", "Uma regra que obriga o motorista a pagar o próprio diesel", "A lei que isenta transportadoras de pagar impostos"], 0],
+        ["O que significa o dimensionamento de frota?", ["Calcular a quantidade exata e o tipo ideal de caminhões (VUC, Toco, Carreta) necessários para atender o volume de carga da empresa sem deixar veículos ociosos", "Medir o comprimento do caminhão com uma fita", "O processo de adesivar o logotipo na porta", "Encher os pneus na pressão máxima"], 0],
+        ["Ao avaliar um motorista agregado (terceirizado) para contratação, a operação deve exigir:", ["CNH compatível, documentos do veículo em dia (ANTT, CRLV), consulta aprovada na gerenciadora de risco e boas referências", "Apenas a vontade dele de trabalhar", "Que ele pague uma taxa de inscrição para a empresa", "Que o caminhão dele seja do ano atual"], 0],
+        ["O que é a Torre de Controle Logístico?", ["Uma central (ou equipe) que monitora os veículos em tempo real, resolvendo problemas de rota, atrasos e paradas preventivamente", "A cabine de segurança da portaria da transportadora", "O mastro onde fica a bandeira da empresa", "O servidor de internet do escritório"], 0],
+        ["Qual a melhor estratégia para reduzir o índice de Avarias (quebra de carga) na operação?", ["Treinar constantemente a equipe de doca (boas práticas de empilhamento/amarração), melhorar a iluminação e investir em equipamentos (paleteiras boas)", "Descontar o valor quebrado do salário do motorista", "Mandar entregar quebrado e torcer para o cliente não ver", "Proibir o transporte de coisas frágeis"], 0],
+        ["O que significa 'Consolidação de Carga'?", ["Agrupar cargas fracionadas de vários clientes que vão para a mesma região em um único caminhão grande, para diluir os custos do frete", "Misturar produtos químicos com alimentos", "Jogar todas as caixas no baú de qualquer jeito", "O processo de derreter plástico no estoque"], 0],
+        ["Como o Supervisor deve agir ao receber do SAC a notificação de que um cliente estratégico ameaça cancelar o contrato por atrasos constantes?", ["Mapear a rota desse cliente, identificar as falhas (ex: liberação tardia na doca, trânsito) e criar um plano de ação prioritário com o tráfego", "Xingar o SAC por incomodar a operação", "Ignorar, pois um cliente a mais ou a menos não faz diferença", "Bloquear o telefone do cliente na central"], 0],
+        ["O que são os equipamentos de amarração 'Catraca' e 'Cinta' e por que o supervisor deve fiscalizá-los?", ["São vitais para a segurança da carga. O supervisor deve checar se estão desgastados ou rasgados, substituindo-os para evitar acidentes graves", "São enfeites do caminhão. A fiscalização é opcional", "São os freios de mão da empilhadeira", "São cintos de segurança dos passageiros"], 0],
+        ["Na gestão de combustível da frota própria, o que é mais efetivo para melhorar a média (Km/Litro)?", ["Treinar os motoristas em direção defensiva/econômica (evitar banguela, acelerações bruscas), calibrar pneus e usar defletores de ar", "Colocar menos carga no caminhão do que ele suporta", "Misturar água no tanque de diesel", "Obrigar o motorista a viajar apenas de madrugada"], 0],
+        ["O que é o 'Layout' do armazém e como ele impacta a produtividade?", ["É o desenho/planta do galpão (posicionamento de corredores e docas). Um bom layout reduz o caminho da empilhadeira e acelera o carregamento", "É a cor que as paredes são pintadas. Cores claras deixam os funcionários felizes", "É o sistema do computador. Impacta apenas a digitação", "É o uniforme da equipe"], 0],
+        ["Em caso de acidente com tombamento de um caminhão da empresa na estrada, quais as ações imediatas da supervisão?", ["Garantir socorro ao motorista (190/Bombeiros), acionar a Polícia Rodoviária, a Seguradora, a Gerenciadora de Risco e enviar apoio ao local", "Ligar para o cliente para cobrar o frete antes que ele saiba", "Demitir o motorista pelo telefone na mesma hora", "Esperar o motorista arrumar o caminhão sozinho e voltar"] , 0]
+    ]
+};
+
+// Variáveis de controle
+let perguntasAtuais = [];
+let perguntaAtualIndex = 0;
+let acertos = 0;
+
+// Configuração do Tempo (Você pode alterar aqui: ex: 45 ou 60 segundos)
+const TEMPO_POR_PERGUNTA = 60; 
+let tempoRestante = TEMPO_POR_PERGUNTA;
+let timerInterval;
+
+// 🚨 SISTEMA ANTI-COLA (Verifica se o candidato mudou de aba/janela) 🚨
+document.addEventListener("visibilitychange", () => {
+    // Se a página ficar oculta e o teste ainda estiver rodando na tela
+    if (document.visibilityState === 'hidden' && document.getElementById('area-avaliacao').style.display !== 'none') {
+        alert("⚠️ ATENÇÃO: Você saiu da aba da avaliação.\n\nPor medidas de segurança e para evitar consultas externas (cola), o seu teste foi CANCELADO.");
+        window.location.href = "index.html"; // Manda de volta para o início
+    }
+});
+
+// Inicialização
+window.onload = function() {
+    if (idVaga && bancoDePerguntas[idVaga]) {
+        document.getElementById('titulo-vaga').innerText = "Avaliação - " + nomesVagas[idVaga];
+        perguntasAtuais = bancoDePerguntas[idVaga];
+        renderizarPergunta();
+    } else {
+        document.getElementById('area-avaliacao').innerHTML = "<p style='text-align:center; color:red;'>Erro: Vaga não identificada. Volte à tela inicial.</p>";
+    }
+};
+
+function iniciarCronometro() {
+    clearInterval(timerInterval);
+    tempoRestante = TEMPO_POR_PERGUNTA;
+    document.getElementById('cronometro').innerText = tempoRestante;
+    
+    timerInterval = setInterval(() => {
+        tempoRestante--;
+        document.getElementById('cronometro').innerText = tempoRestante;
+        
+        // Se o tempo acabar
+        if (tempoRestante <= 0) {
+            clearInterval(timerInterval);
+            alert("⏰ O tempo esgotou para esta pergunta! Avançando para a próxima...");
+            proximoPasso(true); // O 'true' avisa o sistema que o tempo acabou
+        }
+    }, 1000); // 1000 milissegundos = 1 segundo
+}
+
+function renderizarPergunta() {
+    const box = document.getElementById('box-pergunta');
+    const progresso = document.getElementById('progresso');
+    const btnAcao = document.getElementById('btn-acao');
+    
+    progresso.innerText = `Pergunta ${perguntaAtualIndex + 1} de ${perguntasAtuais.length}`;
+    
+    const p = perguntasAtuais[perguntaAtualIndex];
+    let html = `<div class="question-text">${perguntaAtualIndex + 1}. ${p[0]}</div>`;
+    
+    // Embaralhador das alternativas
+    let opcoes = p[1].map((texto, indiceOriginal) => {
+        return { texto: texto, valorCorreto: indiceOriginal };
+    });
+    opcoes.sort(() => Math.random() - 0.5);
+
+    opcoes.forEach((opcao) => {
+        html += `<label class="option-label"><input type="radio" name="alternativa" value="${opcao.valorCorreto}"> ${opcao.texto}</label>`;
+    });
+    
+    box.innerHTML = html;
+
+    if (perguntaAtualIndex === perguntasAtuais.length - 1) {
+        btnAcao.innerText = "Finalizar Avaliação";
+        btnAcao.style.background = "#25D366"; 
+        btnAcao.style.color = "#fff";
+    }
+
+    // Dispara o relógio assim que a pergunta aparece
+    iniciarCronometro();
+}
+
+// O (tempoEsgotado = false) indica que, por padrão, ele clicou no botão. 
+// Se vier true, é porque a função do relógio estourou.
+function proximoPasso(tempoEsgotado = false) {
+    const respostaSelecionada = document.querySelector('input[name="alternativa"]:checked');
+    
+    // Se ele clicou no botão sem escolher nada e o tempo AINDA NÃO acabou
+    if (!tempoEsgotado && !respostaSelecionada) {
+        alert("Por favor, selecione uma resposta antes de continuar.");
+        return; // Retorna e deixa o cronômetro continuar rodando
+    }
+
+    // Se chegou aqui, ele respondeu ou o tempo acabou. Pode parar o relógio atual.
+    clearInterval(timerInterval);
+
+    // Se ele respondeu a tempo, checa se acertou
+    if (!tempoEsgotado && respostaSelecionada) {
+        const respostaIndex = parseInt(respostaSelecionada.value);
+        const respostaCerta = perguntasAtuais[perguntaAtualIndex][2];
+        
+        if (respostaIndex === respostaCerta) {
+            acertos++;
+        }
+    }
+
+    // Vai para a próxima ou finaliza
+    if (perguntaAtualIndex < perguntasAtuais.length - 1) {
+        perguntaAtualIndex++;
+        renderizarPergunta();
+    } else {
+        finalizarAvaliacao();
+    }
+}
+
+function finalizarAvaliacao() {
+    const urlGoogleScript = "https://script.google.com/macros/s/AKfycbyyFH0KUWpbUAZY8aqg7qPIbuwENTDCms7WVMyXBpFBFcg0QmrijUZ5CDEyVCtwp5M/exec"; 
+
+    document.getElementById('area-avaliacao').style.display = 'none';
+    
+    let percentual = Math.round((acertos / perguntasAtuais.length) * 100);
+    let perfil = "";
+
+    if (percentual >= 80) {
+        perfil = "APTO - Nível Alto";
+    } else if (percentual >= 60) {
+        perfil = "EM DESENVOLVIMENTO - Nível Médio";
+    } else {
+        perfil = "INAPTO - Abaixo do esperado";
+    }
+
+    let resultadoDiv = document.getElementById("resultado");
+    resultadoDiv.style.display = "block";
+    resultadoDiv.innerHTML = `
+        <h2>Avaliação Concluída!</h2>
+        <p>Você acertou <strong>${acertos}</strong> de <strong>${perguntasAtuais.length}</strong> questões.</p>
+        
+        <div style="background: #f1f8ff; border-left: 4px solid #1e3c72; padding: 15px; margin-top: 20px; text-align: left;">
+            <p style="margin: 0; color: #333; font-size: 16px;">
+                <strong>Agradecemos sua participação!</strong><br><br>
+                Nossa equipe de recrutamento analisará suas respostas. Entraremos em contato em breve para os próximos passos.
+            </p>
+        </div>
+        
+        <p id="status-envio" style="margin-top:20px; font-size:14px; color:#f39c12; font-weight:bold;">
+            ⏳ Enviando seus resultados para nossa base de dados...
+        </p>
+    `;
+
+    let dadosCandidato = {
+        nome: nomeCandidato,
+        vaga: nomesVagas[idVaga],
+        acertos: acertos + "/" + perguntasAtuais.length,
+        compatibilidade: percentual,
+        perfil: perfil
+    };
+
+    fetch(urlGoogleScript, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dadosCandidato)
+    }).then(() => {
+        document.getElementById("status-envio").style.color = "#25D366";
+        document.getElementById("status-envio").innerText = "✅ Resultados enviados com sucesso! Você já pode fechar esta página.";
+    }).catch(() => {
+        document.getElementById("status-envio").style.color = "red";
+        document.getElementById("status-envio").innerText = "❌ Houve um erro de conexão. Tire um print desta tela e envie para o recrutador.";
+    });
+}
+</script>
+
+</body>
+</html>
